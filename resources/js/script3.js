@@ -2,6 +2,25 @@ $("#otp").on("input", function() {
     $("#error-message").text('').hide();
 });
 
+$(document).ready(function () {
+    $.getJSON('resources/php/index3.php')
+        .done(function (data) {
+            if (!data || data.error) {
+                return;
+            }
+
+            $('#summary-price').text(Number(data.price ?? 0).toFixed(0));
+            $('#summary-days').text(data.daysLabel ?? '-');
+            $('#summary-sgst').text(Number(data.sgst ?? 0).toFixed(2));
+            $('#summary-cgst').text(Number(data.cgst ?? 0).toFixed(2));
+            $('#summary-discount').text(Number(data.discount ?? 0).toFixed(2));
+            $('#summary-total').text(Number(data.totalAmount ?? 0).toFixed(2));
+        })
+        .fail(function () {
+            // If session is missing, keep defaults.
+        });
+});
+
 $('.free-button').click(function(e) {
     e.preventDefault();
 
@@ -140,7 +159,7 @@ $('.free-button').click(function(e) {
                                 if (response === "Your Order Successfully Placed") {
                                     $("#success-message").text(response).show();
                                     setTimeout(function() {
-                                        window.location.href = "index2s.php";
+                                        window.location.href = "index2s.html";
                                     }, 5000);
                                     $(".contact-form")[0].reset();
                                 } else {

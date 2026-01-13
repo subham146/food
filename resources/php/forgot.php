@@ -14,7 +14,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 include 'config.php';
 include 'smtp.php';
 
-
 try {
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
@@ -24,133 +23,111 @@ try {
         throw new Exception("Connection failed: " . $conn->connect_error);
     }
 
-    // Check if the form is submitted
+    include __DIR__ . '/db_init.php';
+
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
+        // normalized schema only
+
+        // Step 1: Request OTP
         if (isset($_POST["email"])) {
-            // Retrieve form data
             $emailpt = htmlspecialchars(trim($_POST["email"]));
-                
-            $checkQuery = "SELECT * FROM user WHERE email = ?";
 
-            if (!($checkStmt = $conn->prepare($checkQuery))) {
-                throw new Exception("Prepare failed: (" . $conn->errno . ") " . $conn->error);
-            }
-
-            if (!$checkStmt->bind_param("s", $emailpt)) {
-                throw new Exception("Binding parameters failed: (" . $checkStmt->errno . ") " . $checkStmt->error);
-            }
-
-            if (!$checkStmt->execute()) {
-                throw new Exception("Execute failed: (" . $checkStmt->errno . ") " . $checkStmt->error);
-            }
-
+            $checkQuery = "SELECT userid, username, email FROM users WHERE email = ?";
+            $checkStmt = $conn->prepare($checkQuery);
+            $checkStmt->bind_param("s", $emailpt);
+            $checkStmt->execute();
             $checkStmt->store_result();
-            $checkStmt->bind_result($username, $email, $password, $userId); // bind the result set columns to PHP variable
+            $checkStmt->bind_result($userId, $username, $email);
             $checkStmt->fetch();
 
             if ($checkStmt->num_rows() > 0) {
-                if ($emailpt == $email) {
+                $_SESSION['userid'] = $userId;
+                $_SESSION['email'] = $email;
 
-                    $_SESSION['email'] = $email;
+                $otppt = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-                    $otppt = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                $mail = new PHPMailer(true);
 
-                    $mail = new PHPMailer(true);
+                try {
+                    $mail->SMTPDebug = 0;
+                    $mail->isSMTP();
+                    $mail->Host = $smtphost;
+                    $mail->SMTPAuth = true;
+                    $mail->Username = $smtpusername;
+                    $mail->Password = $smtppassword;
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->Port = $smtpport;
 
-                    try {
-                        //Server settings
-                        $mail->SMTPDebug = 0;                                 
-                        $mail->isSMTP();                                      
-                        $mail->Host = $smtphost;  
-                        $mail->SMTPAuth = true;                               
-                        $mail->Username = $smtpusername;                 
-                        $mail->Password = $smtppassword;                           
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;                            
-                        $mail->Port = $smtpport;                                    
-            
-                        //Recipients
-                        $mail->setFrom($smtpusername, 'Foodelight');
-                        $mail->addAddress($emailpt);     
-            
-                        //Content
-                        $mail->isHTML(true);                                  
-                        $mail->Subject = 'Reset Password';
-                        $mail->Body    = "Hi " . $username . ",<br><br>Your OTP for password reset is: " . $otppt . "<br><br>This OTP is valid for 2 minutes only.<br><br>Please use this OTP to reset your password.<br><br>Thanks,<br>Foodelight";
-                        
-            
-                        $result = $mail->send();
-                        $expiry = 0;
+                    $mail->setFrom($smtpusername, 'Foodelight');
+                    $mail->addAddress($emailpt);
 
-                        echo 'OTP has been sent to your email';
+                    $mail->isHTML(true);
+                    $mail->Subject = 'Reset Password';
+                    $mail->Body = "Hi " . $username . ",<br><br>Your OTP for password reset is: " . $otppt . "<br><br>This OTP is valid for 2 minutes only.<br><br>Please use this OTP to reset your password.<br><br>Thanks,<br>Foodelight";
 
-                        if ($result == 1) {
-                            $checkQuery1 = "INSERT INTO otp(otp,expired) VALUES (?,?)";
+                    $result = $mail->send();
 
-                            if (!($checkStmt1 = $conn->prepare($checkQuery1))) {
-                                throw new Exception("Prepare failed: (" . $conn->errno . ") " . $conn->error);
-                            }
+                    if ($result == 1) {
+                        $expiresAt = date('Y-m-d H:i:s', time() + 120);
+                        $isUsed = 0;
+                        $insertOtp = $conn->prepare("INSERT INTO otp(userid, otp, expires_at, is_used) VALUES (?, ?, ?, ?)");
+                        $insertOtp->bind_param("issi", $userId, $otppt, $expiresAt, $isUsed);
+                        $insertOtp->execute();
+                        $insertOtp->close();
 
-                            if (!$checkStmt1->bind_param("ii", $otppt, $expiry)) {
-                                throw new Exception("Binding parameters failed: (" . $checkStmt1->errno . ") " . $checkStmt->error);
-                            }
-
-                            if (!$checkStmt1->execute()) {
-                                throw new Exception("Error: " . $checkStmt1->error);
-                            }
-
-                            $checkStmt1->close();
-
-                        } else {
-                            echo "ERROR";
-                        }
-
-                    } catch (Exception $e) {
-                        echo 'Message could not be sent. Mailer Error: ', $mail->ErrorInfo;
+                        // Keep string EXACTLY as JS expects
+                        echo "OTP has been sent to your email";
+                    } else {
+                        echo "ERROR sending OTP email.";
                     }
-                } else {
-                    echo "Invalid credentials1";
-                }
 
+                } catch (Exception $e) {
+                    echo 'Message could not be sent. Mailer Error: ', $mail->ErrorInfo;
+                }
             } else {
                 echo "Account not Found!";
             }
+            $checkStmt->close();
 
+        // Step 2: Verify OTP
         } else if (isset($_POST["otp"])) {
-            try {
-                $checkStmt = $conn->prepare("SELECT * FROM otp WHERE otp = ? AND expired != 1 AND NOW() <= DATE_ADD(created, INTERVAL 2 MINUTE)");
-                if ($checkStmt === false) {
-                    throw new Exception($conn->error);
-                }
-                $checkStmt->bind_param("s", $_POST["otp"]);
-                $checkStmt->execute();
-                $result = $checkStmt->get_result();
-            
-                if ($result->num_rows > 0) {
-                    $updateStmt = $conn->prepare("UPDATE otp SET expired = 1 WHERE otp = ?");
-                    if ($updateStmt === false) {
-                        throw new Exception($conn->error);
-                    }
-                    $updateStmt->bind_param("s", $_POST["otp"]);
-                    $updateStmt->execute();
+            $userid = $_SESSION['userid'] ?? null;
+            $otp = $_POST["otp"];
 
-                    echo "OTP is valid.";
-                } else {
-                    echo "Invalid OTP!";
-                }
-            } catch (Exception $e) {
-                die("Error: " . $e->getMessage());
+            if (!$userid) {
+                throw new Exception("Session expired or invalid. Please try again.");
             }
+
+            $checkStmt = $conn->prepare("SELECT id FROM otp WHERE userid = ? AND otp = ? AND is_used = 0 AND NOW() <= expires_at");
+            $checkStmt->bind_param("is", $userid, $otp);
+            $checkStmt->execute();
+            $result = $checkStmt->get_result();
+
+            if ($result->num_rows > 0) {
+                $otpRow = $result->fetch_assoc();
+                $otp_id = $otpRow['id'];
+
+                $updateStmt = $conn->prepare("UPDATE otp SET is_used = 1 WHERE id = ?");
+                $updateStmt->bind_param("i", $otp_id);
+                $updateStmt->execute();
+                $updateStmt->close();
+
+                echo "OTP is valid.";
+                // Here you can proceed to allow password reset
+
+            } else {
+                echo "Invalid OTP!";
+            }
+            $checkStmt->close();
+
         } else {
-            // Handle case where one or more keys are not set
             throw new Exception("Error: One or more form fields are missing.");
         }
-
     }
 
-    // Close the database connection
     $conn->close();
 } catch (Exception $e) {
-    echo  $e->getMessage(), "\n";
+    echo $e->getMessage(), "\n";
 }
 ?>

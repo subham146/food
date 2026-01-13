@@ -75,6 +75,47 @@ switchMode.addEventListener('change', function () {
 	}
 })
 
+function escapeHtml(value) {
+	return String(value ?? '')
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+}
+
+$(document).ready(function () {
+	$.getJSON('resources/php/admin4.php')
+		.done(function (data) {
+			if (data && typeof data.currentUser === 'string') {
+				$('#profileImage').attr('title', data.currentUser);
+			}
+
+			var logs = (data && Array.isArray(data.logs)) ? data.logs : [];
+			var $tbody = $('#activity-body');
+			$tbody.empty();
+
+			logs.forEach(function (row) {
+				var userid = escapeHtml(row.userid);
+				var email = escapeHtml(row.email);
+				var eventText = escapeHtml(row.event);
+				var datetime = escapeHtml(row.datetime);
+
+				$tbody.append(
+					'<tr>' +
+						'<td><p>' + userid + '</p></td>' +
+						'<td>' + email + '</td>' +
+						'<td>' + eventText + '</td>' +
+						'<td>' + datetime + '</td>' +
+					'</tr>'
+				);
+			});
+		})
+		.fail(function () {
+			// Keep UI functional even if backend fails.
+		});
+});
+
 
 $(document).ready(function() {
     $("#search").keyup(function() {

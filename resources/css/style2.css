@@ -4,13 +4,6 @@
     box-sizing: border-box;
 }
 
-* {
-    -webkit-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-            user-select: none;
-  }
-
 html,body {
     background-color: #fff;
     color: #555;

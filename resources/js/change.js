@@ -30,13 +30,6 @@ $(document).ready(function() {
     // Add event listeners to both password fields
     password2.on("focusout", checkPasswords);
     password3.on("input", checkPasswords);
-
-    password2.on("paste", function(e) {
-        e.preventDefault();
-    });
-    password3.on("paste", function(e) {
-        e.preventDefault();
-    });
   
     function checkPasswords() {
         // Password policy: at least one uppercase letter, one lowercase letter, one special character, and one number

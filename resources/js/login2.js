@@ -107,7 +107,7 @@
                                 if (response === "Admin Login Success") {
                                     $("#success-message").text(response).show();
                                     $(".contact-form")[0].reset();
-                                    window.location.href = "admin.php"
+                                    window.location.href = "admin.html"
                                 } else {
                                     $("#error-message").text(response).show();
                                     $("#otp").val('');

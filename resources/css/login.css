@@ -4,13 +4,6 @@
     box-sizing: border-box;
 }
 
-* {
-    -webkit-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-            user-select: none;
-  }
-
 html,body {
     background-color: #fff;
     color: #555;
@@ -87,6 +80,18 @@ input[type=text],input[type=password] {
     border: 1px solid #ccc;
 }
 
+/* Hide browser-provided password reveal/clear UI (common in Edge/IE) */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+
+/* Hide Chrome/Edge password manager autofill button (when present) */
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    visibility: hidden;
+    display: none !important;
+}
+
 
 
 .contain {
@@ -102,6 +107,8 @@ input[type=text],input[type=password] {
     -moz-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
     -o-transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 2;
 }
 
 *:focus {
@@ -173,6 +180,37 @@ input[type=submit].sot{
 input[type=submit]:hover,
 input[type=submit]:active{
     background-color: #cf6d17;
+}
+
+.btns-resend {
+    display: inline-block;
+    padding: 10px 15px;
+    font-weight: 300;
+    border-radius: 200px;
+    text-decoration: none;
+    transition: background-color 0.2s, border 0.2s, color 0.2s;
+    -webkit-transition: background-color 0.2s, border 0.2s, color 0.2s;
+    -moz-transition: background-color 0.2s, border 0.2s, color 0.2s;
+    -ms-transition: background-color 0.2s, border 0.2s, color 0.2s;
+    -o-transition: background-color 0.2s, border 0.2s, color 0.2s;
+    -webkit-border-radius: 200px;
+    -moz-border-radius: 200px;
+    -ms-border-radius: 200px;
+    -o-border-radius: 200px;
+    background-color: #e67e22;
+    border: 1px solid #e67e22;
+    color: #fff;
+}
+
+.btns-resend:hover,
+.btns-resend:active {
+    background-color: #cf6d17;
+}
+
+.btns-resend:disabled {
+    background-color: #ccc;
+    border: 1px solid #ccc;
+    cursor: not-allowed;
 }
 
 #submit-btn:disabled {

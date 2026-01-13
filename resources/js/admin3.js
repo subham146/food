@@ -76,6 +76,114 @@ switchMode.addEventListener('change', function () {
 })
 
 
+function mapGoal(value) {
+	switch (value) {
+		case 'wl': return 'Weight Loss';
+		case 'wm': return 'Weight Maintenance';
+		case 'gm': return 'Gain Muscle';
+		case 'he': return 'Healthy eating';
+		default: return value || '';
+	}
+}
+
+function mapDuration(value) {
+	switch (value) {
+		case '3d': return '3 days';
+		case '2w': return '2 weeks';
+		case '4w': return '4 weeks';
+		default:
+			if (value === undefined || value === null || value === '') return '';
+			if (!isNaN(Number(value))) return value + ' days';
+			return value;
+	}
+}
+
+function mapMeals(value) {
+	switch (value) {
+		case '1m': return '1 meal';
+		case '2m': return '2 meals';
+		case '3m': return '3 meals';
+		case '4m': return '4 meals';
+		default: return value || '';
+	}
+}
+
+function mapDiet(value) {
+	switch (value) {
+		case 'keto': return 'Ketogenic Diet';
+		case 'balanced': return 'Balanced Diet';
+		case 'low': return 'Low-carb Diet';
+		case 'glu': return 'Gluten-free Diet';
+		default: return value || '';
+	}
+}
+
+function mapType(value) {
+	switch (value) {
+		case 'egg': return 'Eggetarian';
+		case 'veg': return 'Vegetarian';
+		case 'nonveg': return 'Non-Vegetarian';
+		default: return value || '';
+	}
+}
+
+function escapeHtml(text) {
+	return String(text ?? '')
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#039;');
+}
+
+function renderSubscriptions(subscriptions) {
+	const tbody = document.getElementById('subscriptions-body');
+	if (!tbody) return;
+
+	if (!Array.isArray(subscriptions) || subscriptions.length === 0) {
+		tbody.innerHTML = '<tr><td colspan="11">No records found</td></tr>';
+		$('#no-records-found').show();
+		return;
+	}
+
+	$('#no-records-found').hide();
+
+	const rowsHtml = subscriptions.map(function (s) {
+		const amountValue = s.amount === undefined || s.amount === null || s.amount === '' ? '' : ('₹' + s.amount);
+		return (
+			'<tr>' +
+				'<td><p>' + escapeHtml(s.userid) + '</p></td>' +
+				'<td>' + escapeHtml(mapGoal(s.goal)) + '</td>' +
+				'<td>' + escapeHtml(mapDuration(s.duration)) + '</td>' +
+				'<td>' + escapeHtml(mapMeals(s.meals)) + '</td>' +
+				'<td>' + escapeHtml(mapDiet(s.diet)) + '</td>' +
+				'<td>' + escapeHtml(mapType(s.type)) + '</td>' +
+				'<td>' + escapeHtml(s.mealtype) + '</td>' +
+				'<td>' + escapeHtml(s.subscriptionid) + '</td>' +
+				'<td>' + escapeHtml(s.transactionid) + '</td>' +
+				'<td>' + escapeHtml(amountValue) + '</td>' +
+				'<td>' + escapeHtml(s.datein) + '</td>' +
+			'</tr>'
+		);
+	}).join('');
+
+	tbody.innerHTML = rowsHtml;
+}
+
+$(document).ready(function () {
+	$.getJSON('resources/php/admin3.php')
+		.done(function (data) {
+			if (data && data.currentUser !== undefined) {
+				$('#profileImage').attr('title', data.currentUser);
+			}
+			renderSubscriptions(data && data.subscriptions ? data.subscriptions : []);
+		})
+		.fail(function () {
+			renderSubscriptions([]);
+		});
+});
+
+
 $(document).ready(function() {
     $("#search").keyup(function() {
         searchtb($(this).val());

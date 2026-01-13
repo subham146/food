@@ -75,6 +75,59 @@ switchMode.addEventListener('change', function () {
 	}
 })
 
+function escapeHtml(value) {
+	return String(value ?? '')
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+}
+
+$(document).ready(function () {
+	$.getJSON('resources/php/admin.php')
+		.done(function (data) {
+			if (data && typeof data.currentUser === 'string') {
+				$('#profileImage').attr('title', data.currentUser);
+			}
+
+			if (data && data.metrics) {
+				$('#metric-neworders').text(data.metrics.newOrders ?? 0);
+				$('#metric-users').text(data.metrics.users ?? 0);
+				$('#metric-totalsales').text('₹ ' + (data.metrics.totalSales ?? 0));
+			}
+
+			var orders = (data && Array.isArray(data.recentOrders)) ? data.recentOrders : [];
+			var $tbody = $('#recent-orders-body');
+			$tbody.empty();
+
+			orders.forEach(function (row) {
+				var username = escapeHtml(row.username);
+				var subscriptionid = escapeHtml(row.subscriptionid);
+				var transactionid = escapeHtml(row.transactionid);
+				var amount = escapeHtml(row.amount);
+				var datein = escapeHtml(row.datein);
+
+				$tbody.append(
+					'<tr>' +
+						'<td>' +
+							'<img id="profileImage" width="48" height="48" src="https://img.icons8.com/fluency/48/user-male-circle--v1.png" />' +
+							'<p>' + username + '</p>' +
+						'</td>' +
+						'<td>' + subscriptionid + '</td>' +
+						'<td>' + transactionid + '</td>' +
+						'<td>₹' + amount + '</td>' +
+						'<td>' + datein + '</td>' +
+						'<td><span class="status completed">Completed</span></td>' +
+					'</tr>'
+				);
+			});
+		})
+		.fail(function () {
+			// Keep UI functional even if backend fails.
+		});
+});
+
 
 $(document).ready(function() {
     $("#search").keyup(function() {

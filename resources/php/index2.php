@@ -4,6 +4,23 @@ session_start();
 
 include "config.php";
 
+function parse_duration_days(string $raw): int {
+    $raw = trim($raw);
+    if ($raw === '') {
+        return 3;
+    }
+    if (preg_match('/^(\d+)\s*d$/i', $raw, $m)) {
+        return max(1, (int)$m[1]);
+    }
+    if (preg_match('/^(\d+)\s*w$/i', $raw, $m)) {
+        return max(1, (int)$m[1]) * 7;
+    }
+    if (ctype_digit($raw)) {
+        return max(1, (int)$raw);
+    }
+    return 3;
+}
+
 try {
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
@@ -16,7 +33,10 @@ try {
     // Check if the form is submitted
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-        if (isset($_POST["goal"]) && isset($_POST["gender"]) && isset($_POST["days"]) && isset($_POST["meal"]) && isset($_POST["diet"]) && isset($_POST["sty"]) && isset($_POST["choose"])) {
+        if (
+            isset($_POST["goal"]) && isset($_POST["gender"]) && isset($_POST["days"]) &&
+            isset($_POST["meal"]) && isset($_POST["diet"]) && isset($_POST["sty"]) && isset($_POST["choose"])
+        ) {
             // Retrieve form data
             $goal = htmlspecialchars(trim($_POST["goal"]));
             $gender = htmlspecialchars(trim($_POST["gender"]));
@@ -27,56 +47,41 @@ try {
             $choose = isset($_POST["choose"]) ? array_map(function($value) {
                 return htmlspecialchars(trim($value));
             }, $_POST["choose"]) : [];
-            $usernamept = $_SESSION['username'];
-
+            $useridpt = $_SESSION['userId']; // Use userid from session
 
             $choose_string = implode(', ', $choose);
-            
 
-            // Check if an active subscription already exists for the account
-            $checkQuery = "SELECT duration FROM subscription WHERE username = ?";
-            $checkStmt = $conn->prepare($checkQuery);
-            $checkStmt->bind_param("s", $usernamept);
-            $checkStmt->execute();
-            $checkStmt->store_result();
-            $checkStmt->bind_result($duration); // bind the result set columns to PHP variable
-            $checkStmt->fetch();
-
-            if ($duration === "4w") { 
-                $fweek = 28;
-            } else if ($duration === "2w") {
-                $fweek = 14;
-            } else {
-                $fweek = 3;
-            }
-
-            $checkQuery2 = "SELECT * FROM subscription WHERE username = ? AND NOW() <= DATE_ADD(datein, INTERVAL ? DAY)";
+            // Normalized schema: check active subscription by userid
+            $durationDays = parse_duration_days((string) $days);
+            $checkQuery2 = "SELECT subscriptionid FROM subscriptions WHERE userid = ? AND status = 'active' AND CURDATE() <= end_date LIMIT 1";
             $checkStmt2 = $conn->prepare($checkQuery2);
-            $checkStmt2->bind_param("si", $usernamept, $fweek);
+            $checkStmt2->bind_param("i", $useridpt);
             $checkStmt2->execute();
             $checkStmt2->store_result();
 
             if ($checkStmt2->num_rows > 0) {
                 // An active subscription already exists, do not insert a new one
                 echo "You already have an active subscription.";
-            }else {
+            } else {
 
                 $_SESSION['goal'] = $goal;
-                $_SESSION['gender']= $gender;
+                $_SESSION['gender'] = $gender;
                 $_SESSION['days'] = $days;
                 $_SESSION['meal'] = $meal;
                 $_SESSION['diet'] = $diet;
                 $_SESSION['sty'] = $sty;
                 $_SESSION['choose'] = $choose_string;
+                $_SESSION['duration_days'] = $durationDays;
 
                 echo "Redirecting to payment Page...";
             }
+            $checkStmt2->close();
 
         } else if (isset($_POST['price'])) {
             $_SESSION['price'] = $_POST['price'];
 
         } else {
-        // Handle case where one or more keys are not set
+            // Handle case where one or more keys are not set
             throw new Exception("Error: One or more form fields are missing.");
         }
 
@@ -87,6 +92,5 @@ try {
 } catch (Exception $e) {
     echo  $e->getMessage(), "\n";
 }
-
 
 ?>

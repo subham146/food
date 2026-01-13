@@ -2,6 +2,17 @@ $("#goal, #gender, #days, #meal, #diet, #sty").on('change', function() {
     $("#error-message").text('').hide();
 });
 
+$(document).ready(function () {
+    $.getJSON('resources/php/acc.php')
+        .done(function (data) {
+            var username = (data && data.username) ? data.username : 'Guest';
+            $('#profileImage').attr('title', username);
+        })
+        .fail(function () {
+            $('#profileImage').attr('title', 'Guest');
+        });
+});
+
 
 $(document).ready(function() {
     // Check the selected goal when the page loads
@@ -160,7 +171,7 @@ $(document).ready(function() {
             success: function(response) {
                 if (response === "Redirecting to payment Page...") {
                     $("#success-message").text(response).show();
-                    window.location.href = "index3.php"
+                    window.location.href = "index3.html"
                 } else {
                     $("#error-message").text(response).show();
                     $(".contact-form")[0].reset();

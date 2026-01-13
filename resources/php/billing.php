@@ -14,6 +14,27 @@ use PHPMailer\PHPMailer\PHPMailer;
 include "config.php";
 include "smtp.php";
 
+function parse_duration_days(string $raw): int {
+    $raw = trim($raw);
+    if ($raw === '') {
+        return 3;
+    }
+
+    if (preg_match('/^(\d+)\s*d$/i', $raw, $m)) {
+        return max(1, (int)$m[1]);
+    }
+
+    if (preg_match('/^(\d+)\s*w$/i', $raw, $m)) {
+        return max(1, (int)$m[1]) * 7;
+    }
+
+    if (ctype_digit($raw)) {
+        return max(1, (int)$raw);
+    }
+
+    return 3;
+}
+
 try {
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
@@ -30,6 +51,11 @@ try {
             
             $username = $_SESSION['username'];
             $email = $_SESSION['email'];
+            $userid = $_SESSION['userId'] ?? null;
+
+            if (!$userid) {
+                throw new Exception("Not logged in.");
+            }
 
             $otppt = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
@@ -57,26 +83,21 @@ try {
                 
     
                 $result = $mail->send();
-                $expiry = 0;
-
-                echo 'OTP has been sent to your email';
-
                 if ($result == 1) {
-                    $checkQuery1 = "INSERT INTO otp(otp,expired) VALUES (?,?)";
+                    echo 'OTP has been sent to your email';
 
-                    if (!($checkStmt1 = $conn->prepare($checkQuery1))) {
-                        throw new Exception("Prepare failed: (" . $conn->errno . ") " . $conn->error);
+                    $expiresAt = date('Y-m-d H:i:s', time() + 120);
+                    $isUsed = 0;
+
+                    $insertOtp = $conn->prepare("INSERT INTO otp (userid, otp, expires_at, is_used) VALUES (?, ?, ?, ?)");
+                    if ($insertOtp === false) {
+                        throw new Exception($conn->error);
                     }
-
-                    if (!$checkStmt1->bind_param("ii", $otppt, $expiry)) {
-                        throw new Exception("Binding parameters failed: (" . $checkStmt1->errno . ") " . $checkStmt->error);
+                    $insertOtp->bind_param("issi", $userid, $otppt, $expiresAt, $isUsed);
+                    if (!$insertOtp->execute()) {
+                        throw new Exception("Error: " . $insertOtp->error);
                     }
-
-                    if (!$checkStmt1->execute()) {
-                        throw new Exception("Error: " . $checkStmt1->error);
-                    }
-
-                    $checkStmt1->close();
+                    $insertOtp->close();
 
                 } else {
                     echo "ERROR";
@@ -104,87 +125,198 @@ try {
 
                 $transactionId = substr(bin2hex(random_bytes(8)), 0, 16);
 
-                $timestamp = time(); // Get the current Unix timestamp
-                $randomDigits = substr(bin2hex(random_bytes(8)), 0, 16 - strlen($timestamp)); // Generate the random digits
-                $subscriptionId = $timestamp . $randomDigits;
+                $durationDays = parse_duration_days((string) $days);
 
-                $checkStmt = $conn->prepare("SELECT * FROM otp WHERE otp = ? AND expired != 1 AND NOW() <= DATE_ADD(created, INTERVAL 2 MINUTE)");
+                $checkStmt = $conn->prepare("SELECT id FROM otp WHERE userid = ? AND otp = ? AND is_used = 0 AND NOW() <= expires_at");
                 if ($checkStmt === false) {
                     throw new Exception($conn->error);
                 }
-                $checkStmt->bind_param("s", $_POST["otp"]);
+                $checkStmt->bind_param("is", $userid, $_POST["otp"]);
                 $checkStmt->execute();
                 $result = $checkStmt->get_result();
 
                 if ($result->num_rows > 0) {
-                    $updateStmt = $conn->prepare("UPDATE otp SET expired = 1 WHERE otp = ?");
+                    $otpRow = $result->fetch_assoc();
+                    $otpId = $otpRow['id'];
+
+                    $conn->begin_transaction();
+
+                    $updateStmt = $conn->prepare("UPDATE otp SET is_used = 1 WHERE id = ?");
                     if ($updateStmt === false) {
                         throw new Exception($conn->error);
                     }
-                    $updateStmt->bind_param("s", $_POST["otp"]);
-                    $updateStmt->execute();
-
+                    $updateStmt->bind_param("i", $otpId);
+                    if (!$updateStmt->execute()) {
+                        throw new Exception("Error: " . $updateStmt->error);
+                    }
                     $updateStmt->close();
-    
-                    echo "Your Order Successfully Placed";
 
-                    $insertQuery2 = "INSERT INTO transaction (username, transactionid, userid) VALUES (?, ?, ?)";
-                    $insertStmt2 = $conn->prepare($insertQuery2);
-                    $insertStmt2->bind_param("ssi", $username, $transactionId, $userid);
-        
-                    $insertQuery = "INSERT INTO subscription (username, goal, gender, duration, meals, diet, type, mealtype, transactionid, amount,  subscriptionid, userid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    $insertStmt = $conn->prepare($insertQuery);
-                    $insertStmt->bind_param("sssssssssdsi", $username, $goal, $gender, $days, $meal, $diet, $sty, $choose, $transactionId, $price, $subscriptionId, $userid);
-        
-                    if (!$insertStmt2->execute()) {
-                        throw new Exception("Error: " . $insertStmt2->error);
-                    } else if (!$insertStmt->execute()){
-                        throw new Exception("Error: " . $insertStmt->error);
-                    } else {
+                    // Create or find a plan that matches this selection
+                    $planGoal = (string) $goal;
+                    $planDiet = (string) $diet;
+                    $planMealtype = (string) $choose;
+                    $planPrice = (float) $price;
 
-                        $mail2 = new PHPMailer(true);
+                    $planId = null;
+                    $findPlan = $conn->prepare("SELECT planid FROM plans WHERE goal = ? AND diet = ? AND mealtype = ? AND duration_days = ? AND price = ? LIMIT 1");
+                    if ($findPlan === false) {
+                        throw new Exception($conn->error);
+                    }
+                    $findPlan->bind_param('sssdd', $planGoal, $planDiet, $planMealtype, $durationDays, $planPrice);
+                    if ($findPlan->execute()) {
+                        $findPlan->bind_result($planId);
+                        $findPlan->fetch();
+                    }
+                    $findPlan->close();
 
-                        try {
-        
-                            //Server settings
-                            $mail2->SMTPDebug = 0;                                 
-                            $mail2->isSMTP();                                      
-                            $mail2->Host = $smtphost;  
-                            $mail2->SMTPAuth = true;                               
-                            $mail2->Username = $smtpusername;                 
-                            $mail2->Password = $smtppassword;                           
-                            $mail2->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;                            
-                            $mail2->Port = $smtpport;                                    
-                
-                            //Recipients
-                            $mail2->setFrom($smtpusername, 'Foodelight');
-                            $mail2->addAddress($email);     
-                
-                            //Content
-                            $mail2->isHTML(true);                                  
-                            $mail2->Subject = 'Welcome to Foodelight';
-                            $mail2->Body    = "Hi " . $username . ", <br><br>Your Transaction Id is " . $transactionId . " and Subscription ID is " . $subscriptionId . " for your subscription plan.<br><br>You have have subscribed with customised diet + food delivery.<br><br>Your meal will be delievred according to your timings.<br><br>Thanks,<br>Foodelight";
-                            
-                
-                            $result = $mail2->send();
-        
-                        } catch (Exception $e) {
-                            echo 'Message could not be sent. Mailer Error: ', $mail2->ErrorInfo;
+                    if (!$planId) {
+                        $insertPlan = $conn->prepare("INSERT INTO plans (goal, diet, mealtype, duration_days, price) VALUES (?, ?, ?, ?, ?)");
+                        if ($insertPlan === false) {
+                            throw new Exception($conn->error);
                         }
+                        $insertPlan->bind_param('sssdd', $planGoal, $planDiet, $planMealtype, $durationDays, $planPrice);
+                        if (!$insertPlan->execute()) {
+                            throw new Exception("Error: " . $insertPlan->error);
+                        }
+                        $planId = $conn->insert_id;
+                        $insertPlan->close();
 
-                        $event = "Subscribed to Foodelight";
+                        // Attach meals (best-effort) if provided
+                        $mealNames = array_filter(array_map('trim', preg_split('/,/', (string) $meal)));
+                        foreach ($mealNames as $mealName) {
+                            if ($mealName === '') {
+                                continue;
+                            }
 
-                        $insertQuery = "INSERT INTO activitylog (userid, email, event) VALUES (?, ?, ?)";
-                        $insertStmt = $conn->prepare($insertQuery);
-                        $insertStmt->bind_param("iss", $userid, $email, $event);
-                        if(!$insertStmt->execute()) {
-                            throw new Exception("Error: " . $insertStmt->error);
+                            $mealId = null;
+                            $findMeal = $conn->prepare("SELECT mealid FROM meals WHERE meal_name = ? LIMIT 1");
+                            if ($findMeal === false) {
+                                throw new Exception($conn->error);
+                            }
+                            $findMeal->bind_param('s', $mealName);
+                            if ($findMeal->execute()) {
+                                $findMeal->bind_result($mealId);
+                                $findMeal->fetch();
+                            }
+                            $findMeal->close();
+
+                            if (!$mealId) {
+                                $insertMeal = $conn->prepare("INSERT INTO meals (meal_name) VALUES (?)");
+                                if ($insertMeal === false) {
+                                    throw new Exception($conn->error);
+                                }
+                                $insertMeal->bind_param('s', $mealName);
+                                if (!$insertMeal->execute()) {
+                                    throw new Exception("Error: " . $insertMeal->error);
+                                }
+                                $mealId = $conn->insert_id;
+                                $insertMeal->close();
+                            }
+
+                            $insertPlanMeal = $conn->prepare("INSERT IGNORE INTO plan_meals (planid, mealid) VALUES (?, ?)");
+                            if ($insertPlanMeal === false) {
+                                throw new Exception($conn->error);
+                            }
+                            $insertPlanMeal->bind_param('ii', $planId, $mealId);
+                            if (!$insertPlanMeal->execute()) {
+                                throw new Exception("Error: " . $insertPlanMeal->error);
+                            }
+                            $insertPlanMeal->close();
                         }
                     }
+
+                    // Update user's gender (best-effort) to match selection
+                    if ($gender) {
+                        $genderValue = strtolower((string) $gender);
+                        if (!in_array($genderValue, ['male', 'female', 'other'], true)) {
+                            $genderValue = 'other';
+                        }
+                        $updateGender = $conn->prepare("UPDATE users SET gender = ? WHERE userid = ?");
+                        if ($updateGender) {
+                            $updateGender->bind_param('si', $genderValue, $userid);
+                            $updateGender->execute();
+                            $updateGender->close();
+                        }
+                    }
+
+                    // Create subscription
+                    $startDate = date('Y-m-d');
+                    $endDate = date('Y-m-d', strtotime('+' . $durationDays . ' days'));
+                    $status = 'active';
+                    $insertSub = $conn->prepare("INSERT INTO subscriptions (userid, planid, start_date, end_date, status) VALUES (?, ?, ?, ?, ?)");
+                    if ($insertSub === false) {
+                        throw new Exception($conn->error);
+                    }
+                    $insertSub->bind_param('iisss', $userid, $planId, $startDate, $endDate, $status);
+                    if (!$insertSub->execute()) {
+                        throw new Exception("Error: " . $insertSub->error);
+                    }
+                    $subscriptionId = $conn->insert_id;
+                    $insertSub->close();
+
+                    // Create transaction
+                    $paymentMethod = 'otp';
+                    $paymentStatus = 'success';
+                    $insertTxn = $conn->prepare("INSERT INTO transactions (transactionid, subscriptionid, amount, payment_method, payment_status) VALUES (?, ?, ?, ?, ?)");
+                    if ($insertTxn === false) {
+                        throw new Exception($conn->error);
+                    }
+                    $insertTxn->bind_param('sidss', $transactionId, $subscriptionId, $planPrice, $paymentMethod, $paymentStatus);
+                    if (!$insertTxn->execute()) {
+                        throw new Exception("Error: " . $insertTxn->error);
+                    }
+                    $insertTxn->close();
+
+                    // Activity log
+                    $event = "Subscribed to Foodelight";
+                    $insertLog = $conn->prepare("INSERT INTO activity_log (userid, event) VALUES (?, ?)");
+                    if ($insertLog) {
+                        $insertLog->bind_param('is', $userid, $event);
+                        $insertLog->execute();
+                        $insertLog->close();
+                    }
+
+                    $conn->commit();
+
+                    echo "Your Order Successfully Placed";
+
+                    // Confirmation email (non-transactional)
+                    $mail2 = new PHPMailer(true);
+
+                    try {
+                        $mail2->SMTPDebug = 0;
+                        $mail2->isSMTP();
+                        $mail2->Host = $smtphost;
+                        $mail2->SMTPAuth = true;
+                        $mail2->Username = $smtpusername;
+                        $mail2->Password = $smtppassword;
+                        $mail2->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                        $mail2->Port = $smtpport;
+
+                        $mail2->setFrom($smtpusername, 'Foodelight');
+                        $mail2->addAddress($email);
+
+                        $mail2->isHTML(true);
+                        $mail2->Subject = 'Welcome to Foodelight';
+                        $mail2->Body    = "Hi " . $username . ", <br><br>Your Transaction Id is " . $transactionId . " and Subscription ID is " . $subscriptionId . " for your subscription plan.<br><br>Thanks,<br>Foodelight";
+
+                        $mail2->send();
+                    } catch (Exception $e) {
+                        // ignore mail errors for payment flow
+                    }
+
                 } else {
                     echo "Invalid OTP!";
                 }
             } catch (Exception $e) {
+                if ($conn && $conn->errno === 0) {
+                    // no-op
+                }
+                try {
+                    $conn->rollback();
+                } catch (Exception $rollbackErr) {
+                    // ignore
+                }
                 die("Error: " . $e->getMessage());
             }
 

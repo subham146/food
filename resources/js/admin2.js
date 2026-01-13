@@ -75,6 +75,53 @@ switchMode.addEventListener('change', function () {
 	}
 })
 
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+$(document).ready(function () {
+    $.getJSON('resources/php/admin2.php')
+        .done(function (data) {
+            if (data && typeof data.currentUser === 'string') {
+                $('#profileImage').attr('title', data.currentUser);
+            }
+
+            var users = (data && Array.isArray(data.users)) ? data.users : [];
+            var $tbody = $('#users-body');
+            $tbody.empty();
+
+            users.forEach(function (row) {
+                var userid = escapeHtml(row.userid);
+                var username = escapeHtml(row.username);
+                var email = escapeHtml(row.email);
+                var password = escapeHtml(row.password);
+
+                $tbody.append(
+                    '<tr>' +
+                        '<td>' +
+                            '<img id="profileImage" width="48" height="48" src="https://img.icons8.com/fluency/48/user-male-circle--v1.png" />' +
+                            '<p>' + username + '</p>' +
+                        '</td>' +
+                        '<td>' + userid + '</td>' +
+                        '<td>' + email + '</td>' +
+                        '<td>' + password + '</td>' +
+                        '<td>' +
+                            '<a href="#" class="btn btn-danger delete-btn" data-id="' + userid + '" data-email="' + email + '">Delete</a>' +
+                        '</td>' +
+                    '</tr>'
+                );
+            });
+        })
+        .fail(function () {
+            // Keep UI functional even if backend fails.
+        });
+});
+
 
 $(document).ready(function() {
     $("#search").keyup(function() {
@@ -114,10 +161,10 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
-    $(".delete-btn").click(function(e) {
-        e.preventDefault(); // prevent the default action
-        var id = $(this).data("id"); // get the id from the data-id attribute
-		var email = $(this).data("email"); // get the email from the data-email attribute
+    $(document).on('click', '.delete-btn', function(e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+		var email = $(this).data("email");
         $.ajax({
             url: "resources/php/delete.php",
             type: "POST",
@@ -125,7 +172,7 @@ $(document).ready(function() {
             success: function(response) {
                 if(response == 1) {
                     alert("Record deleted successfully");
-                    location.reload(); // reload the page to reflect the changes
+                    location.reload();
                 } else {
                     alert("There was an error. Please try again.");
                 }

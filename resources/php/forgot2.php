@@ -14,7 +14,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 include 'config.php';
 include 'smtp.php';
 
-
 try {
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
@@ -31,7 +30,7 @@ try {
             // Retrieve form data
             $emailpt = htmlspecialchars(trim($_POST["email"]));
                 
-            $checkQuery = "SELECT * FROM admin WHERE email = ?";
+            $checkQuery = "SELECT adminid, username, email FROM admin WHERE email = ?";
 
             if (!($checkStmt = $conn->prepare($checkQuery))) {
                 throw new Exception("Prepare failed: (" . $conn->errno . ") " . $conn->error);
@@ -46,12 +45,13 @@ try {
             }
 
             $checkStmt->store_result();
-            $checkStmt->bind_result($adminid, $username, $password, $email); // bind the result set columns to PHP variable
+            $checkStmt->bind_result($adminid, $username, $email); 
             $checkStmt->fetch();
 
             if ($checkStmt->num_rows() > 0) {
                 if ($emailpt == $email) {
 
+                    $_SESSION['adminid'] = $adminid;
                     $_SESSION['email'] = $email;
 
                     $otppt = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -78,21 +78,20 @@ try {
                         $mail->Subject = 'Reset Password';
                         $mail->Body    = "Hi " . $username . ",<br><br>Your OTP for password reset is: " . $otppt . "<br><br>This OTP is valid for 2 minutes only.<br><br>Please use this OTP to reset your password.<br><br>Thanks,<br>Foodelight";
                         
-            
                         $result = $mail->send();
-                        $expiry = 0;
-                        
-                        echo 'OTP has been sent to your email';
+                        if ($result) {
+                            echo 'OTP has been sent to your email';
 
-                        if ($result == 1) {
-                            $checkQuery1 = "INSERT INTO otp(otp,expired) VALUES (?,?)";
+                            $expiresAt = date('Y-m-d H:i:s', time() + 120);
+                            $isUsed = 0;
+                            $checkQuery1 = "INSERT INTO admin_otp(adminid, otp, expires_at, is_used) VALUES (?, ?, ?, ?)";
 
                             if (!($checkStmt1 = $conn->prepare($checkQuery1))) {
                                 throw new Exception("Prepare failed: (" . $conn->errno . ") " . $conn->error);
                             }
 
-                            if (!$checkStmt1->bind_param("ii", $otppt, $expiry)) {
-                                throw new Exception("Binding parameters failed: (" . $checkStmt1->errno . ") " . $checkStmt->error);
+                            if (!$checkStmt1->bind_param("iisi", $adminid, $otppt, $expiresAt, $isUsed)) {
+                                throw new Exception("Binding parameters failed: (" . $checkStmt1->errno . ") " . $checkStmt1->error);
                             }
 
                             if (!$checkStmt1->execute()) {
@@ -115,29 +114,39 @@ try {
             } else {
                 echo "Account not Found!";
             }
-
+            $checkStmt->close();
         } else if (isset($_POST["otp"])) {
             try {
-                $checkStmt = $conn->prepare("SELECT * FROM otp WHERE otp = ? AND expired != 1 AND NOW() <= DATE_ADD(created, INTERVAL 2 MINUTE)");
+                $adminid = $_SESSION['adminid'] ?? null;
+                $otp = $_POST["otp"];
+                if (!$adminid) {
+                    throw new Exception("Session expired or invalid. Please try again.");
+                }
+                $checkStmt = $conn->prepare("SELECT id FROM admin_otp WHERE adminid = ? AND otp = ? AND is_used = 0 AND NOW() <= expires_at");
                 if ($checkStmt === false) {
                     throw new Exception($conn->error);
                 }
-                $checkStmt->bind_param("s", $_POST["otp"]);
+                $checkStmt->bind_param("ii", $adminid, $otp);
                 $checkStmt->execute();
                 $result = $checkStmt->get_result();
             
                 if ($result->num_rows > 0) {
-                    $updateStmt = $conn->prepare("UPDATE otp SET expired = 1 WHERE otp = ?");
+                    $otpRow = $result->fetch_assoc();
+                    $otp_id = $otpRow['id'];
+
+                    $updateStmt = $conn->prepare("UPDATE admin_otp SET is_used = 1 WHERE id = ?");
                     if ($updateStmt === false) {
                         throw new Exception($conn->error);
                     }
-                    $updateStmt->bind_param("s", $_POST["otp"]);
+                    $updateStmt->bind_param("i", $otp_id);
                     $updateStmt->execute();
+                    $updateStmt->close();
 
                     echo "OTP is valid.";
                 } else {
                     echo "Invalid OTP!";
                 }
+                $checkStmt->close();
             } catch (Exception $e) {
                 die("Error: " . $e->getMessage());
             }

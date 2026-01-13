@@ -14,6 +14,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;1,300&display=swap" rel="stylesheet">
         <title>Foodelight</title>
         <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
         <link rel="icon" type="image/svg+xml" href="resources/favicons/favicon.svg">
         <link rel="icon" type="image/png" href="resources/favicons/favicon.png">
 
@@ -65,6 +66,12 @@
                     <div id="error-message" class="error-message"></div>
 
                     <div id="timer" class="timer"></div>
+
+                    <div class="row" id="resend-row" style="display:none;">
+                        <div class="row span-2-of-2 sys resend-otp">
+                            <input type="button" id="resend-btn" class="btns-resend" value="Remit" disabled>
+                        </div>
+                    </div>
 
                     <div class="row">
                         <div class="row span-2-of-2">
