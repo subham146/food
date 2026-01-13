@@ -3,11 +3,21 @@
 // CORS + cross-site session bootstrap for Vercel frontend -> InfinityFree PHP backend
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-$allowedOrigins = [
-    'https://foodelight-iota.vercel.app',
-];
 
-if ($origin && in_array($origin, $allowedOrigins, true)) {
+// Allow production + Vercel preview URLs for this project.
+// Vercel previews are typically like: https://foodelight-iota-git-branch-xyz.vercel.app
+$isAllowedOrigin = false;
+if ($origin) {
+    $isAllowedOrigin = ($origin === 'https://foodelight-iota.vercel.app');
+    if (!$isAllowedOrigin && preg_match('/^https:\/\/foodelight-iota-.+\.vercel\.app$/', $origin)) {
+        $isAllowedOrigin = true;
+    }
+
+    // Optional: uncomment for local testing
+    // if (!$isAllowedOrigin && $origin === 'http://localhost:5500') $isAllowedOrigin = true;
+}
+
+if ($origin && $isAllowedOrigin) {
     header('Access-Control-Allow-Origin: ' . $origin);
     header('Vary: Origin');
     header('Access-Control-Allow-Credentials: true');

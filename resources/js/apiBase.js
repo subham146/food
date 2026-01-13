@@ -16,6 +16,11 @@
 
       if (url.indexOf("resources/php/") === 0) {
         options.url = base + "/" + url;
+
+        // Important: ensure jQuery treats this as a cross-domain request.
+        // Otherwise it may assume same-origin (since the original URL was relative),
+        // add X-Requested-With, and trigger a CORS preflight that some hosts reject.
+        options.crossDomain = true;
       }
     });
   }
