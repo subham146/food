@@ -390,11 +390,7 @@ $(document).ready(function() {
                     var serverText = (xhr && xhr.responseText) ? String(xhr.responseText).trim() : "";
                     var details = serverText ? (" - " + serverText.substring(0, 250)) : "";
                     console.error('Signup AJAX failed:', { status: status, textStatus: textStatus, errorThrown: errorThrown, responseText: serverText });
-                    if (!status) {
-                        showError("Error: Signup request failed. (Network/CORS) Make sure you are opening the site from your Vercel URL and that the backend CORS allowlist includes this origin.");
-                    } else {
-                        showError("Error: Signup request failed. " + status + details);
-                    }
+                    showError("Error: Signup request failed. " + status + details);
                     $("#submit-btn").prop('disabled', false);
                 }
             });
