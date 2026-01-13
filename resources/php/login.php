@@ -1,6 +1,6 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/bootstrap.php';
 
 date_default_timezone_set("Asia/Kolkata");
 
