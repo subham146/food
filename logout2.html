@@ -12,7 +12,7 @@
                 window.location.href = url;
             }
 
-            fetch('https://foodelight.ct.ws/resources/php/logout2.php', { method: 'POST', credentials: 'include' })
+            fetch('resources/php/logout2.php', { method: 'POST' })
                 .then(function (res) { return res.json(); })
                 .then(function (data) {
                     if (data && data.redirect) {
