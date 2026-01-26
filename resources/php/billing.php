@@ -4,15 +4,15 @@ session_start();
 
 date_default_timezone_set("Asia/Kolkata");
 
-require '../../PHPMailer/src/Exception.php';
-require '../../PHPMailer/src/PHPMailer.php';
-require '../../PHPMailer/src/SMTP.php';
+require __DIR__ . '/mail/Exception.php';
+require __DIR__ . '/mail/PHPMailer.php';
+require __DIR__ . '/mail/SMTP.php';
 
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
 include "config.php";
-include "smtp.php";
+include "smtp1.php";
 
 function parse_duration_days(string $raw): int {
     $raw = trim($raw);

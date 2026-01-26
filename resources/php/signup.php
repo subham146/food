@@ -4,15 +4,15 @@ session_start();
 
 date_default_timezone_set("Asia/Kolkata");
 
-require_once __DIR__ . '/../../PHPMailer/src/Exception.php';
-require_once __DIR__ . '/../../PHPMailer/src/PHPMailer.php';
-require_once __DIR__ . '/../../PHPMailer/src/SMTP.php';
+require_once __DIR__ . '/mail/Exception.php';
+require_once __DIR__ . '/mail/PHPMailer.php';
+require_once __DIR__ . '/mail/SMTP.php';
 
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/smtp.php';
+require_once __DIR__ . '/smtp1.php';
 
 function generate_unique_userid(mysqli $conn): int {
     $stmt = $conn->prepare("SELECT userid FROM users WHERE userid = ?");
