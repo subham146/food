@@ -53,7 +53,7 @@
   
     if ($("#username").val() && $("#pwd").val()){
       $.ajax({
-        url: "https://foodelight.byethost11.com/php/login2.php",
+        url: "resources/php/login2.php",
         type: "POST",
         data: $(".contact-form").serialize(),
         success: function(response) {
@@ -100,7 +100,7 @@
                 
                     if ($("#otp").val()) {
                         $.ajax({
-                            url: "https://foodelight.byethost11.com/php/login2.php", // replace with the URL of your verification script
+                            url: "resources/php/login2.php", // replace with the URL of your verification script
                             type: "POST",
                             data: { otp: $("#otp").val() },
                             success: function(response) {

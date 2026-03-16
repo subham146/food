@@ -49,7 +49,7 @@ $("#username").on("focusout",function() {
 
     if (username) { // Only make the AJAX request if the username is not empty
         $.ajax({
-            url: "https://foodelight.byethost11.com/php/login.php", // replace with the URL of your script that checks if a username is available
+            url: "resources/php/login.php", // replace with the URL of your script that checks if a username is available
             type: "POST",
             data: { username: username },
             success: function(response) {
@@ -83,7 +83,7 @@ $("#submit-btn").click(function(e) {
 
   if ($("#username").val() && $("#pwd").val()){
     $.ajax({
-      url: "https://foodelight.byethost11.com/php/login.php",
+      url: "resources/php/login.php",
       type: "POST",
       data: $(".contact-form").serialize(),
       success: function(response) {
@@ -130,7 +130,7 @@ $("#submit-btn").click(function(e) {
               
                   if ($("#otp").val()) {
                       $.ajax({
-                          url: "https://foodelight.byethost11.com/php/login.php", // replace with the URL of your verification script
+                          url: "resources/php/login.php", // replace with the URL of your verification script
                           type: "POST",
                           data: { otp: $("#otp").val() },
                           success: function(response) {

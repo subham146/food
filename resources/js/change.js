@@ -66,7 +66,7 @@ $(document).ready(function() {
 
     if ($("#pwd2").val() && $("#pwd3").val()) {
         $.ajax({
-            url: "https://foodelight.byethost11.com/php/change.php",
+            url: "resources/php/change.php",
             type: "POST",
             data: $(".contact-form").serialize(),
             success: function(response) {

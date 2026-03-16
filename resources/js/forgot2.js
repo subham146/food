@@ -34,7 +34,7 @@ $("#submit-btn").click(function(e) {
 
     if ($("#email").val()) {
         $.ajax({
-            url: "https://foodelight.byethost11.com/php/forgot2.php",
+            url: "resources/php/forgot2.php",
             type: "POST",
             data: $(".contact-form").serialize(),
             success: function(response) {
@@ -81,7 +81,7 @@ $("#submit-btn").click(function(e) {
                     
                         if ($("#otp").val()) {
                             $.ajax({
-                                url: "https://foodelight.byethost11.com/php/forgot2.php", // replace with the URL of your verification script
+                                url: "resources/php/forgot2.php", // replace with the URL of your verification script
                                 type: "POST",
                                 data: { otp: $("#otp").val() },
                                 success: function(response) {

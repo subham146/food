@@ -85,7 +85,7 @@ function escapeHtml(value) {
 }
 
 $(document).ready(function () {
-	$.getJSON('https://foodelight.byethost11.com/php/admin.php')
+	$.getJSON('resources/php/admin.php')
 		.done(function (data) {
 			if (data && typeof data.currentUser === 'string') {
 				$('#profileImage').attr('title', data.currentUser);

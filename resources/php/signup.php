@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/cors.php';
+session_start();
 
 date_default_timezone_set("Asia/Kolkata");
 
