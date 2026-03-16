@@ -1,20 +1,3 @@
-window.FOODELIGHT_API_BASE = window.FOODELIGHT_API_BASE || 'https://foodelight.ct.ws/php/';
-if (typeof window.jQuery !== 'undefined' && !window.__FOODELIGHT_API_PREFILTER__) {
-    window.__FOODELIGHT_API_PREFILTER__ = true;
-
-    $.ajaxSetup({
-        xhrFields: { withCredentials: true }
-    });
-
-    $.ajaxPrefilter(function(options) {
-        if (typeof options.url === 'string' && options.url.indexOf('resources/php/') === 0) {
-            options.url = window.FOODELIGHT_API_BASE + options.url.replace(/^resources\/php\//, '');
-        }
-
-        options.xhrFields = options.xhrFields || {};
-        options.xhrFields.withCredentials = true;
-    });
-}
 function escapeHtml(value) {
     return String(value ?? '')
         .replace(/&/g, '&amp;')
@@ -25,7 +8,7 @@ function escapeHtml(value) {
 }
 
 $(document).ready(function () {
-    $.getJSON('resources/php/plan.php')
+    $.getJSON('https://foodelight.ct.ws/php/plan.php')
         .done(function (data) {
             if (data && typeof data.currentUser === 'string') {
                 $('#profileImage').attr('title', data.currentUser);

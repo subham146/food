@@ -1,20 +1,3 @@
-window.FOODELIGHT_API_BASE = window.FOODELIGHT_API_BASE || 'https://foodelight.ct.ws/php/';
-if (typeof window.jQuery !== 'undefined' && !window.__FOODELIGHT_API_PREFILTER__) {
-    window.__FOODELIGHT_API_PREFILTER__ = true;
-
-    $.ajaxSetup({
-        xhrFields: { withCredentials: true }
-    });
-
-    $.ajaxPrefilter(function(options) {
-        if (typeof options.url === 'string' && options.url.indexOf('resources/php/') === 0) {
-            options.url = window.FOODELIGHT_API_BASE + options.url.replace(/^resources\/php\//, '');
-        }
-
-        options.xhrFields = options.xhrFields || {};
-        options.xhrFields.withCredentials = true;
-    });
-}
 $(document).on('click', 'ion-icon.small', function () {
     var $icon = $(this);
     var $input = $icon.siblings('input').first();
@@ -116,7 +99,7 @@ $("#name").on("input",function() {
     if((is_alphabetic || is_alphanumeric) && !is_numeric){
 
         $.ajax({
-            url: "resources/php/signup.php", // replace with the URL of your script that checks if a username is available
+            url: "https://foodelight.ct.ws/php/signup.php", // replace with the URL of your script that checks if a username is available
             type: "POST",
             data: { name: username },
             success: function(response) {
@@ -259,7 +242,7 @@ $(document).ready(function() {
             // Final step: create account
             $("#submit-btn").prop('disabled', true);
             $.ajax({
-                url: "resources/php/signup.php",
+                url: "https://foodelight.ct.ws/php/signup.php",
                 type: "POST",
                 data: { create_account: 1 },
                 beforeSend: function() {
@@ -290,7 +273,7 @@ $(document).ready(function() {
         // First step: send OTP (collect stage only)
         if (stage === 'collect' && $("#name").val() && $("#email").val() && $("#pwd1").val() && $("#pwd2").val() && ($("#agree").is(":checked"))) {
             $.ajax({
-                url: "resources/php/signup.php",
+                url: "https://foodelight.ct.ws/php/signup.php",
                 type: "POST",
                 data: $(".contact-form").serialize(),
                 beforeSend: function() {
@@ -330,7 +313,7 @@ $(document).ready(function() {
                                 $("#submit-btn").data('stage', 'otp_sent');
 
                                 $.ajax({
-                                    url: "resources/php/signup.php",
+                                    url: "https://foodelight.ct.ws/php/signup.php",
                                     type: "POST",
                                     data: { resend_signup_otp: 1 },
                                     beforeSend: function() {
@@ -361,7 +344,7 @@ $(document).ready(function() {
                         
                             if ($("#otp").val()) {
                                 $.ajax({
-                                    url: "resources/php/signup.php", // replace with the URL of your verification script
+                                    url: "https://foodelight.ct.ws/php/signup.php", // replace with the URL of your verification script
                                     type: "POST",
                                     data: { otp: $("#otp").val()},
                                     success: function(response) {

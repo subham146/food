@@ -1,26 +1,9 @@
-window.FOODELIGHT_API_BASE = window.FOODELIGHT_API_BASE || 'https://foodelight.ct.ws/php/';
-if (typeof window.jQuery !== 'undefined' && !window.__FOODELIGHT_API_PREFILTER__) {
-    window.__FOODELIGHT_API_PREFILTER__ = true;
-
-    $.ajaxSetup({
-        xhrFields: { withCredentials: true }
-    });
-
-    $.ajaxPrefilter(function(options) {
-        if (typeof options.url === 'string' && options.url.indexOf('resources/php/') === 0) {
-            options.url = window.FOODELIGHT_API_BASE + options.url.replace(/^resources\/php\//, '');
-        }
-
-        options.xhrFields = options.xhrFields || {};
-        options.xhrFields.withCredentials = true;
-    });
-}
 $("#otp").on("input", function() {
     $("#error-message").text('').hide();
 });
 
 $(document).ready(function () {
-    $.getJSON('resources/php/index3.php')
+    $.getJSON('https://foodelight.ct.ws/php/index3.php')
         .done(function (data) {
             if (!data || data.error) {
                 return;
@@ -113,7 +96,7 @@ $('.free-button').click(function(e) {
     }
 
     $.ajax({
-        url: 'resources/php/billing.php',
+        url: 'https://foodelight.ct.ws/php/billing.php',
         type: 'post',
         data: { 
             paymentData: paymentData, 
@@ -169,7 +152,7 @@ $('.free-button').click(function(e) {
                     // Call your server-side script to verify the OTP
                     if ($("#otp").val()){
                         $.ajax({
-                            url: "resources/php/billing.php",
+                            url: "https://foodelight.ct.ws/php/billing.php",
                             type: "post",
                             data: { otp: otp },
                             success: function(response) {

@@ -1,20 +1,3 @@
-window.FOODELIGHT_API_BASE = window.FOODELIGHT_API_BASE || 'https://foodelight.ct.ws/php/';
-if (typeof window.jQuery !== 'undefined' && !window.__FOODELIGHT_API_PREFILTER__) {
-    window.__FOODELIGHT_API_PREFILTER__ = true;
-
-    $.ajaxSetup({
-        xhrFields: { withCredentials: true }
-    });
-
-    $.ajaxPrefilter(function(options) {
-        if (typeof options.url === 'string' && options.url.indexOf('resources/php/') === 0) {
-            options.url = window.FOODELIGHT_API_BASE + options.url.replace(/^resources\/php\//, '');
-        }
-
-        options.xhrFields = options.xhrFields || {};
-        options.xhrFields.withCredentials = true;
-    });
-}
 
   $('.small').click(function() {
     var icon = $(this);
@@ -70,7 +53,7 @@ if (typeof window.jQuery !== 'undefined' && !window.__FOODELIGHT_API_PREFILTER__
   
     if ($("#username").val() && $("#pwd").val()){
       $.ajax({
-        url: "resources/php/login2.php",
+        url: "https://foodelight.ct.ws/php/login2.php",
         type: "POST",
         data: $(".contact-form").serialize(),
         success: function(response) {
@@ -117,7 +100,7 @@ if (typeof window.jQuery !== 'undefined' && !window.__FOODELIGHT_API_PREFILTER__
                 
                     if ($("#otp").val()) {
                         $.ajax({
-                            url: "resources/php/login2.php", // replace with the URL of your verification script
+                            url: "https://foodelight.ct.ws/php/login2.php", // replace with the URL of your verification script
                             type: "POST",
                             data: { otp: $("#otp").val() },
                             success: function(response) {

@@ -1,26 +1,9 @@
-window.FOODELIGHT_API_BASE = window.FOODELIGHT_API_BASE || 'https://foodelight.ct.ws/php/';
-if (typeof window.jQuery !== 'undefined' && !window.__FOODELIGHT_API_PREFILTER__) {
-    window.__FOODELIGHT_API_PREFILTER__ = true;
-
-    $.ajaxSetup({
-        xhrFields: { withCredentials: true }
-    });
-
-    $.ajaxPrefilter(function(options) {
-        if (typeof options.url === 'string' && options.url.indexOf('resources/php/') === 0) {
-            options.url = window.FOODELIGHT_API_BASE + options.url.replace(/^resources\/php\//, '');
-        }
-
-        options.xhrFields = options.xhrFields || {};
-        options.xhrFields.withCredentials = true;
-    });
-}
 $("#goal, #gender, #days, #meal, #diet, #sty").on('change', function() {
     $("#error-message").text('').hide();
 });
 
 $(document).ready(function () {
-    $.getJSON('resources/php/acc.php')
+    $.getJSON('https://foodelight.ct.ws/php/acc.php')
         .done(function (data) {
             var username = (data && data.username) ? data.username : 'Guest';
             $('#profileImage').attr('title', username);
@@ -123,7 +106,7 @@ $(document).ready(function() {
             $("#price").text('₹ ' + price).show();
 
             $.ajax({
-                url: 'resources/php/index2.php', // Replace this with the path to your PHP script
+                url: 'https://foodelight.ct.ws/php/index2.php', // Replace this with the path to your PHP script
                 type: 'POST',
                 data: { price: price },
                 success: function(data) {
@@ -182,7 +165,7 @@ $(document).ready(function() {
       
         if (allFieldsFilled){
           $.ajax({
-            url: "resources/php/index2.php",
+            url: "https://foodelight.ct.ws/php/index2.php",
             type: "POST",
             data: $(".contact-form").serialize(),
             success: function(response) {

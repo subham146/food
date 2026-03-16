@@ -1,20 +1,3 @@
-window.FOODELIGHT_API_BASE = window.FOODELIGHT_API_BASE || 'https://foodelight.ct.ws/php/';
-if (typeof window.jQuery !== 'undefined' && !window.__FOODELIGHT_API_PREFILTER__) {
-    window.__FOODELIGHT_API_PREFILTER__ = true;
-
-    $.ajaxSetup({
-        xhrFields: { withCredentials: true }
-    });
-
-    $.ajaxPrefilter(function(options) {
-        if (typeof options.url === 'string' && options.url.indexOf('resources/php/') === 0) {
-            options.url = window.FOODELIGHT_API_BASE + options.url.replace(/^resources\/php\//, '');
-        }
-
-        options.xhrFields = options.xhrFields || {};
-        options.xhrFields.withCredentials = true;
-    });
-}
 const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
 
 allSideMenu.forEach(item=> {
@@ -102,7 +85,7 @@ function escapeHtml(value) {
 }
 
 $(document).ready(function () {
-    $.getJSON('resources/php/admin2.php')
+    $.getJSON('https://foodelight.ct.ws/php/admin2.php')
         .done(function (data) {
             if (data && typeof data.currentUser === 'string') {
                 $('#profileImage').attr('title', data.currentUser);
@@ -183,7 +166,7 @@ $(document).ready(function() {
         var id = $(this).data("id");
 		var email = $(this).data("email");
         $.ajax({
-            url: "resources/php/delete.php",
+            url: "https://foodelight.ct.ws/php/delete.php",
             type: "POST",
             data: { id: id, email: email },
             success: function(response) {
