@@ -3,7 +3,7 @@ $("#goal, #gender, #days, #meal, #diet, #sty").on('change', function() {
 });
 
 $(document).ready(function () {
-    $.getJSON('https://foodelight.ct.ws/php/acc.php')
+    $.getJSON('https://foodelight.byethost11.com/php/acc.php')
         .done(function (data) {
             var username = (data && data.username) ? data.username : 'Guest';
             $('#profileImage').attr('title', username);
@@ -106,7 +106,7 @@ $(document).ready(function() {
             $("#price").text('₹ ' + price).show();
 
             $.ajax({
-                url: 'https://foodelight.ct.ws/php/index2.php', // Replace this with the path to your PHP script
+                url: 'https://foodelight.byethost11.com/php/index2.php', // Replace this with the path to your PHP script
                 type: 'POST',
                 data: { price: price },
                 success: function(data) {
@@ -165,7 +165,7 @@ $(document).ready(function() {
       
         if (allFieldsFilled){
           $.ajax({
-            url: "https://foodelight.ct.ws/php/index2.php",
+            url: "https://foodelight.byethost11.com/php/index2.php",
             type: "POST",
             data: $(".contact-form").serialize(),
             success: function(response) {

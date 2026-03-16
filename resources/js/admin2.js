@@ -85,7 +85,7 @@ function escapeHtml(value) {
 }
 
 $(document).ready(function () {
-    $.getJSON('https://foodelight.ct.ws/php/admin2.php')
+    $.getJSON('https://foodelight.byethost11.com/php/admin2.php')
         .done(function (data) {
             if (data && typeof data.currentUser === 'string') {
                 $('#profileImage').attr('title', data.currentUser);
@@ -166,7 +166,7 @@ $(document).ready(function() {
         var id = $(this).data("id");
 		var email = $(this).data("email");
         $.ajax({
-            url: "https://foodelight.ct.ws/php/delete.php",
+            url: "https://foodelight.byethost11.com/php/delete.php",
             type: "POST",
             data: { id: id, email: email },
             success: function(response) {

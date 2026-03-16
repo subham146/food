@@ -171,7 +171,7 @@ function renderSubscriptions(subscriptions) {
 }
 
 $(document).ready(function () {
-	$.getJSON('https://foodelight.ct.ws/php/admin3.php')
+	$.getJSON('https://foodelight.byethost11.com/php/admin3.php')
 		.done(function (data) {
 			if (data && data.currentUser !== undefined) {
 				$('#profileImage').attr('title', data.currentUser);

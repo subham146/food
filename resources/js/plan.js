@@ -8,7 +8,7 @@ function escapeHtml(value) {
 }
 
 $(document).ready(function () {
-    $.getJSON('https://foodelight.ct.ws/php/plan.php')
+    $.getJSON('https://foodelight.byethost11.com/php/plan.php')
         .done(function (data) {
             if (data && typeof data.currentUser === 'string') {
                 $('#profileImage').attr('title', data.currentUser);

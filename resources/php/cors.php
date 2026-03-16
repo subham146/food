@@ -2,7 +2,7 @@
 
 $allowedOrigins = [
     'https://foodelight-iota.vercel.app',
-    'https://foodelight.ct.ws'
+    'https://foodelight.byethost11.com'
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';

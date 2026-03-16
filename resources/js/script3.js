@@ -3,7 +3,7 @@ $("#otp").on("input", function() {
 });
 
 $(document).ready(function () {
-    $.getJSON('https://foodelight.ct.ws/php/index3.php')
+    $.getJSON('https://foodelight.byethost11.com/php/index3.php')
         .done(function (data) {
             if (!data || data.error) {
                 return;
@@ -96,7 +96,7 @@ $('.free-button').click(function(e) {
     }
 
     $.ajax({
-        url: 'https://foodelight.ct.ws/php/billing.php',
+        url: 'https://foodelight.byethost11.com/php/billing.php',
         type: 'post',
         data: { 
             paymentData: paymentData, 
@@ -152,7 +152,7 @@ $('.free-button').click(function(e) {
                     // Call your server-side script to verify the OTP
                     if ($("#otp").val()){
                         $.ajax({
-                            url: "https://foodelight.ct.ws/php/billing.php",
+                            url: "https://foodelight.byethost11.com/php/billing.php",
                             type: "post",
                             data: { otp: otp },
                             success: function(response) {
