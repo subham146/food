@@ -1,10 +1,11 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/cors.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
 include __DIR__ . '/config.php';
+include __DIR__ . '/db_init.php';
 
 if (!isset($_SESSION['username']) || $_SESSION['username'] === '') {
     http_response_code(401);
@@ -21,8 +22,6 @@ if ($conn->connect_error) {
     echo json_encode(['error' => 'Connection failed']);
     exit;
 }
-
-include __DIR__ . '/db_init.php';
 
 $transactions = [];
 

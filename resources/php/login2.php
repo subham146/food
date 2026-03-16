@@ -1,18 +1,16 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/cors.php';
 
 date_default_timezone_set("Asia/Kolkata");
 
-require __DIR__ . '/mail/Exception.php';
-require __DIR__ . '/mail/PHPMailer.php';
-require __DIR__ . '/mail/SMTP.php';
+require_once __DIR__ . '/mail/Exception.php';
+require_once __DIR__ . '/mail/PHPMailer.php';
+require_once __DIR__ . '/mail/SMTP.php';
 
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\PHPMailer;
 
-include 'config.php';
-include 'smtp1.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/smtp.php';
 
 try {
     // Create connection
@@ -55,7 +53,7 @@ try {
 
                     $otppt = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-                    $mail = new PHPMailer(true);
+                    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
 
                     try {
                         //Server settings
@@ -65,7 +63,7 @@ try {
                         $mail->SMTPAuth = true;
                         $mail->Username = $smtpusername;
                         $mail->Password = $smtppassword;
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                        $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
                         $mail->Port = $smtpport;
 
                         //Recipients

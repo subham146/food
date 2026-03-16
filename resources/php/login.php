@@ -1,18 +1,17 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/cors.php';
 
 date_default_timezone_set("Asia/Kolkata");
 
-require __DIR__ . '/mail/Exception.php';
-require __DIR__ . '/mail/PHPMailer.php';
-require __DIR__ . '/mail/SMTP.php';
+require_once __DIR__ . '/mail/Exception.php';
+require_once __DIR__ . '/mail/PHPMailer.php';
+require_once __DIR__ . '/mail/SMTP.php';
 
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\PHPMailer;
 
-include 'config.php';
-include 'smtp1.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/smtp.php';
+include __DIR__ . '/db_init.php';
 
 try {
     // Create connection
@@ -22,8 +21,6 @@ try {
     if ($conn->connect_error) {
         throw new Exception("Connection failed: " . $conn->connect_error);
     }
-
-    include __DIR__ . '/db_init.php';
 
     // Check if the form is submitted
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -53,7 +50,7 @@ try {
 
                     $otppt = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-                    $mail = new PHPMailer(true);
+                    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
 
                     try {
                         //Server settings
@@ -63,7 +60,7 @@ try {
                         $mail->SMTPAuth = true;
                         $mail->Username = $smtpusername;
                         $mail->Password = $smtppassword;
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                        $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
                         $mail->Port = $smtpport;
 
                         //Recipients
@@ -101,53 +98,6 @@ try {
                 echo "Invalid credentials";
             }
             $checkStmt->close();
-
-        } else if (isset($_POST["resend_login_otp"])) {
-            $userId = $_SESSION['userId'] ?? null;
-            $username = $_SESSION['username'] ?? null;
-            $email = $_SESSION['email'] ?? null;
-
-            if (!$userId || !$username || !$email) {
-                echo "Session expired or invalid. Please login again.";
-                exit;
-            }
-
-            $otppt = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-
-            $mail = new PHPMailer(true);
-            try {
-                $mail->SMTPDebug = 0;
-                $mail->isSMTP();
-                $mail->Host = $smtphost;
-                $mail->SMTPAuth = true;
-                $mail->Username = $smtpusername;
-                $mail->Password = $smtppassword;
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = $smtpport;
-
-                $mail->setFrom($smtpusername, 'Foodelight');
-                $mail->addAddress($email);
-
-                $mail->isHTML(true);
-                $mail->Subject = 'Login Authentication';
-                $mail->Body    = "Hi " . $username . ",<br><br>Your OTP for Login is: " . $otppt . "<br><br>This OTP is valid for 2 minutes only.<br><br>Please use this OTP to login to Foodelight.<br><br>Thanks,<br>Foodelight";
-
-                $result = $mail->send();
-                if ($result) {
-                    echo 'OTP has been sent to your email';
-
-                    $expiresAt = date('Y-m-d H:i:s', time() + 120);
-                    $isUsed = 0;
-                    $insertOtp = $conn->prepare("INSERT INTO otp (userid, otp, expires_at, is_used) VALUES (?, ?, ?, ?)");
-                    $insertOtp->bind_param("issi", $userId, $otppt, $expiresAt, $isUsed);
-                    $insertOtp->execute();
-                    $insertOtp->close();
-                } else {
-                    echo "ERROR";
-                }
-            } catch (Exception $e) {
-                echo 'Message could not be sent. Mailer Error: ', $mail->ErrorInfo;
-            }
 
         } else if (isset($_POST["otp"])) {
             try {

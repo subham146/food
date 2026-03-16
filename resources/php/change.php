@@ -1,8 +1,9 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/cors.php';
 
-include "config.php";
+require_once __DIR__ . '/config.php';
+include __DIR__ . '/db_init.php';
 
 try {
     // Create connection
@@ -12,8 +13,6 @@ try {
     if ($conn->connect_error) {
         throw new Exception("Connection failed: " . $conn->connect_error);
     }
-
-    include __DIR__ . '/db_init.php';
 
     // Check if the form is submitted
     if ($_SERVER["REQUEST_METHOD"] == "POST") {

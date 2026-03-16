@@ -1,7 +1,8 @@
 
-resources/php/config.php
-resources/php/smtp.php
-resources/php/smtp1.php
 resources/php/mail/Exception.php
 resources/php/mail/PHPMailer.php
 resources/php/mail/SMTP.php
+
+
+resources/php/config.php
+resources/php/smtp.php

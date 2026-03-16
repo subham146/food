@@ -1,8 +1,8 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/cors.php';
 
-include "config.php";
+require_once __DIR__ . '/config.php';
 
 function parse_duration_days(string $raw): int {
     $raw = trim($raw);
@@ -17,6 +17,15 @@ function parse_duration_days(string $raw): int {
     }
     if (ctype_digit($raw)) {
         return max(1, (int)$raw);
+    }
+    if ($raw === '4w') {
+        return 28;
+    }
+    if ($raw === '2w') {
+        return 14;
+    }
+    if ($raw === '3d') {
+        return 3;
     }
     return 3;
 }

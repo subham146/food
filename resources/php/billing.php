@@ -1,18 +1,16 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/cors.php';
 
 date_default_timezone_set("Asia/Kolkata");
 
-require __DIR__ . '/mail/Exception.php';
-require __DIR__ . '/mail/PHPMailer.php';
-require __DIR__ . '/mail/SMTP.php';
+require_once __DIR__ . '/mail/Exception.php';
+require_once __DIR__ . '/mail/PHPMailer.php';
+require_once __DIR__ . '/mail/SMTP.php';
 
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\PHPMailer;
 
-include "config.php";
-include "smtp1.php";
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/smtp.php';
 
 function parse_duration_days(string $raw): int {
     $raw = trim($raw);
@@ -30,6 +28,16 @@ function parse_duration_days(string $raw): int {
 
     if (ctype_digit($raw)) {
         return max(1, (int)$raw);
+    }
+
+    if ($raw === '4w') {
+        return 28;
+    }
+    if ($raw === '2w') {
+        return 14;
+    }
+    if ($raw === '3d') {
+        return 3;
     }
 
     return 3;
@@ -59,7 +67,7 @@ try {
 
             $otppt = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-            $mail = new PHPMailer(true);
+            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
         
             try {
                 //Server settings
@@ -69,7 +77,7 @@ try {
                 $mail->SMTPAuth = true;                               
                 $mail->Username = $smtpusername;                 
                 $mail->Password = $smtppassword;                           
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;                            
+                $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;                            
                 $mail->Port = $smtpport;                                    
     
                 //Recipients
@@ -281,7 +289,7 @@ try {
                     echo "Your Order Successfully Placed";
 
                     // Confirmation email (non-transactional)
-                    $mail2 = new PHPMailer(true);
+                    $mail2 = new \PHPMailer\PHPMailer\PHPMailer(true);
 
                     try {
                         $mail2->SMTPDebug = 0;
@@ -290,7 +298,7 @@ try {
                         $mail2->SMTPAuth = true;
                         $mail2->Username = $smtpusername;
                         $mail2->Password = $smtppassword;
-                        $mail2->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                        $mail2->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
                         $mail2->Port = $smtpport;
 
                         $mail2->setFrom($smtpusername, 'Foodelight');

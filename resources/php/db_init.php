@@ -1,7 +1,24 @@
 <?php
 
-    if (!isset($conn) || !($conn instanceof mysqli)) {
-        return;
+    $dbConn = null;
+    $ownsConnection = false;
+
+    if (isset($conn) && ($conn instanceof mysqli)) {
+        $dbConn = $conn;
+    } else {
+        if (!isset($servername, $username, $password, $dbname)) {
+            require_once __DIR__ . '/config.php';
+        }
+
+        if (!isset($servername, $username, $password, $dbname)) {
+            return;
+        }
+
+        $dbConn = @new mysqli($servername, $username, $password, $dbname);
+        if ($dbConn->connect_error) {
+            return;
+        }
+        $ownsConnection = true;
     }
 
     // FINAL NORMALIZED DATABASE (3NF)
@@ -9,7 +26,7 @@
     // Your existing PHP queries must be updated to match these names/columns.
     
     // 1) users
-    $conn->query("CREATE TABLE IF NOT EXISTS users (
+    $dbConn->query("CREATE TABLE IF NOT EXISTS users (
         userid INT PRIMARY KEY,
         username VARCHAR(100) NOT NULL UNIQUE,
         email VARCHAR(255) NOT NULL UNIQUE,
@@ -19,10 +36,10 @@
     )");
 
     // Gender is set later (subscription flow). Ensure column is nullable even on existing DBs.
-    $conn->query("ALTER TABLE users MODIFY gender ENUM('male','female','other') NULL");
+    $dbConn->query("ALTER TABLE users MODIFY gender ENUM('male','female','other') NULL");
 
     // 2) otp (User OTPs)
-    $conn->query("CREATE TABLE IF NOT EXISTS otp (
+    $dbConn->query("CREATE TABLE IF NOT EXISTS otp (
         id INT AUTO_INCREMENT PRIMARY KEY,
         userid INT NOT NULL,
         otp CHAR(6) NOT NULL,
@@ -33,7 +50,7 @@
     )");
 
     // 3) activity_log
-    $conn->query("CREATE TABLE IF NOT EXISTS activity_log (
+    $dbConn->query("CREATE TABLE IF NOT EXISTS activity_log (
         logid INT AUTO_INCREMENT PRIMARY KEY,
         userid INT NOT NULL,
         event VARCHAR(255) NOT NULL,
@@ -42,7 +59,7 @@
     )");
 
     // 4) plans
-    $conn->query("CREATE TABLE IF NOT EXISTS plans (
+    $dbConn->query("CREATE TABLE IF NOT EXISTS plans (
         planid INT AUTO_INCREMENT PRIMARY KEY,
         goal VARCHAR(100) NOT NULL,
         diet VARCHAR(100) NOT NULL,
@@ -52,13 +69,13 @@
     )");
 
     // 5) meals
-    $conn->query("CREATE TABLE IF NOT EXISTS meals (
+    $dbConn->query("CREATE TABLE IF NOT EXISTS meals (
         mealid INT AUTO_INCREMENT PRIMARY KEY,
         meal_name VARCHAR(100) NOT NULL UNIQUE
     )");
 
     // 6) plan_meals (Many-to-Many)
-    $conn->query("CREATE TABLE IF NOT EXISTS plan_meals (
+    $dbConn->query("CREATE TABLE IF NOT EXISTS plan_meals (
         planid INT NOT NULL,
         mealid INT NOT NULL,
         PRIMARY KEY (planid, mealid),
@@ -67,7 +84,7 @@
     )");
 
     // 7) subscriptions
-    $conn->query("CREATE TABLE IF NOT EXISTS subscriptions (
+    $dbConn->query("CREATE TABLE IF NOT EXISTS subscriptions (
         subscriptionid INT AUTO_INCREMENT PRIMARY KEY,
         userid INT NOT NULL,
         planid INT NOT NULL,
@@ -79,7 +96,7 @@
     )");
 
     // 8) transactions
-    $conn->query("CREATE TABLE IF NOT EXISTS transactions (
+    $dbConn->query("CREATE TABLE IF NOT EXISTS transactions (
         transactionid VARCHAR(100) PRIMARY KEY,
         subscriptionid INT NOT NULL,
         amount DECIMAL(10,2) NOT NULL,
@@ -90,7 +107,7 @@
     )");
 
     // 9) admin
-    $conn->query("CREATE TABLE IF NOT EXISTS admin (
+    $dbConn->query("CREATE TABLE IF NOT EXISTS admin (
         adminid INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(100) NOT NULL UNIQUE,
         email VARCHAR(255) NOT NULL UNIQUE,
@@ -99,7 +116,7 @@
     )");
 
     // 10) admin_otp
-    $conn->query("CREATE TABLE IF NOT EXISTS admin_otp (
+    $dbConn->query("CREATE TABLE IF NOT EXISTS admin_otp (
         id INT AUTO_INCREMENT PRIMARY KEY,
         adminid INT NOT NULL,
         otp CHAR(6) NOT NULL,
@@ -108,5 +125,9 @@
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (adminid) REFERENCES admin(adminid) ON DELETE CASCADE
     )");
+
+    if ($ownsConnection) {
+        $dbConn->close();
+    }
 
 ?>

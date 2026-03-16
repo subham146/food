@@ -1,15 +1,34 @@
+window.FOODELIGHT_API_BASE = window.FOODELIGHT_API_BASE || 'https://foodelight.ct.ws/php/';
+if (typeof window.jQuery !== 'undefined' && !window.__FOODELIGHT_API_PREFILTER__) {
+    window.__FOODELIGHT_API_PREFILTER__ = true;
+
+    $.ajaxSetup({
+        xhrFields: { withCredentials: true }
+    });
+
+    $.ajaxPrefilter(function(options) {
+        if (typeof options.url === 'string' && options.url.indexOf('resources/php/') === 0) {
+            options.url = window.FOODELIGHT_API_BASE + options.url.replace(/^resources\/php\//, '');
+        }
+
+        options.xhrFields = options.xhrFields || {};
+        options.xhrFields.withCredentials = true;
+    });
+}
 
 
-$(document).on('click', 'ion-icon.small', function () {
-    var $icon = $(this);
-    var $input = $icon.siblings('input').first();
+$('.small').click(function() {
+  var icon = $(this);
+  var password = $('#pwd');
 
-    if (!$input.length) return;
+  password.attr('type', password.attr('type') === 'password' ? 'text' : 'password');
 
-    var currentType = ($input.attr('type') || '').toLowerCase();
-    var nextType = currentType === 'password' ? 'text' : 'password';
-    $input.attr('type', nextType);
-    $icon.attr('name', nextType === 'password' ? 'eye-off-outline' : 'eye-outline');
+  if (icon.attr("name") == "eye-off-outline") {
+      icon.attr("name", "eye-outline");
+  } else {
+      icon.attr("name", "eye-off-outline");
+  }
+
 });
 
 $(document).ready(function() {
@@ -73,186 +92,88 @@ $("#username").on("focusout",function() {
 $("#submit-btn").click(function(e) {
   e.preventDefault();
 
-  var timerInterval = null;
-  var otpExpired = false;
-    var sendingOtpTimeout = null;
-
-  function setMessage($el, text) {
-      var next = String(text || "");
-      if ($el.is(":visible") && $el.text() === next) {
-          return;
-      }
-      $el.text(next).show();
-  }
-
-  function hideMessage($el) {
-      if ($el.is(":visible")) {
-          $el.text("").hide();
-      }
-  }
-
-  function showSuccess(text) {
-      hideMessage($("#error-message"));
-      setMessage($("#success-message"), text);
-  }
-
-  function showError(text) {
-      hideMessage($("#success-message"));
-      setMessage($("#error-message"), text);
-  }
-
-  function setVerifyMode() {
-      otpExpired = false;
-      $("#verify-btn").val("Verify");
-  }
-
-  function setResendMode() {
-      otpExpired = true;
-      $("#verify-btn").val("Remit");
-  }
-
-  function clearLoginOtpTimer() {
-      if (timerInterval) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-      }
-  }
-
-  function sendLoginOtp(isResend) {
-      $("#error1-message").text('').hide();
-      $("#resend-row").hide();
-      $("#otp").val('');
-
-      if (sendingOtpTimeout) {
-          clearTimeout(sendingOtpTimeout);
-          sendingOtpTimeout = null;
-      }
-
-      $("#submit-btn").prop("disabled", true);
-      $("#verify-btn").prop("disabled", true);
-
-      // Show "Sending OTP..." only if the request isn't instant (prevents flicker on fast failures)
-      sendingOtpTimeout = setTimeout(function() {
-          showSuccess("Sending OTP...");
-          sendingOtpTimeout = null;
-      }, 250);
-
-      $.ajax({
-          url: "resources/php/login.php",
-          type: "POST",
-          data: isResend ? { resend_login_otp: 1 } : $(".contact-form").serialize(),
-          success: function(response) {
-              if (sendingOtpTimeout) {
-                  clearTimeout(sendingOtpTimeout);
-                  sendingOtpTimeout = null;
-              }
-              var resp = (response || "").trim();
-              if (resp === "OTP has been sent to your email") {
-                  showSuccess(response);
-                  $(".otpverify").show();
-                  $("#resend-row").hide();
-
-                  setVerifyMode();
-                  startLoginOtpTimer();
-                  $("#verify-btn").prop("disabled", false);
-              } else {
-                  showError(response);
-                  $("#submit-btn").prop("disabled", false);
-                  $("#verify-btn").prop("disabled", false);
-              }
-          },
-          error: function() {
-              if (sendingOtpTimeout) {
-                  clearTimeout(sendingOtpTimeout);
-                  sendingOtpTimeout = null;
-              }
-              showError(isResend ? "Error: Remit request failed." : "Error: OTP request failed.");
-              $("#submit-btn").prop("disabled", false);
-              $("#verify-btn").prop("disabled", false);
-          }
-      });
-  }
-
-  function startLoginOtpTimer() {
-      var timeLeft = 120; // 2 minutes in seconds
-      var timerElement = $("#timer");
-
-      clearLoginOtpTimer();
-
-      timerElement.text("Time left: 2:00");
-      $("#resend-row").hide();
-      setVerifyMode();
-
-      timerInterval = setInterval(function() {
-          timeLeft--;
-          var minutes = Math.floor(timeLeft / 60);
-          var seconds = timeLeft % 60;
-
-          if (seconds < 10) {
-              seconds = "0" + seconds;
-          }
-
-          timerElement.text("Time left: " + minutes + ":" + seconds);
-
-          if (timeLeft <= 0) {
-              clearLoginOtpTimer();
-              timerElement.text("Time's up!");
-
-              // Switch Verify -> Resend (same button)
-              setResendMode();
-              $("#verify-btn").prop("disabled", false);
-          }
-      }, 1000);
-  }
-
   // Disable the button
   $(this).prop('disabled', true);
+  
+  $("#success-message").text('').hide()
+  $("#error-message").text('').hide()
 
   if ($("#username").val() && $("#pwd").val()){
-    sendLoginOtp(false);
+    $.ajax({
+      url: "resources/php/login.php",
+      type: "POST",
+      data: $(".contact-form").serialize(),
+      success: function(response) {
+          if (response === "OTP has been sent to your email") {
+              $("#success-message").text(response).show();
+              $(".otpverify").show();
 
-    $("#otp").off("input").on("input", function() {
-        $("#error-message").text('').hide();
-    });
+              $("#otp").on("input", function() {
+                  $("#error-message").text('').hide();
+              });
+              
+              var timeLeft = 120; // 2 minutes in seconds
+              var timerElement = $("#timer"); // replace with the ID of your timer element
 
-    $("#verify-btn").off("click").on("click", function(e) {
-        e.preventDefault();
-        $("#resend-row").hide();
+              timerElement.text("Time left: 2:00");
 
-        if (otpExpired) {
-            sendLoginOtp(true);
-            return;
-        }
+              // Disable the "Send OTP" button
+              $("#submit-btn").prop("disabled", true);
 
-        if (!$("#otp").val()) {
-            showError("Error: Please enter the OTP.");
-            return;
-        }
+              var timerInterval = setInterval(function() {
+                  timeLeft--;
+                  var minutes = Math.floor(timeLeft / 60);
+                  var seconds = timeLeft % 60;
 
-        $.ajax({
-            url: "resources/php/login.php",
-            type: "POST",
-            data: { otp: $("#otp").val() },
-            success: function(response) {
-                var resp2 = (response || "").trim();
-                if (resp2 === "OTP is valid.") {
-                    showSuccess(response);
-                    $(".contact-form")[0].reset();
-                    clearLoginOtpTimer();
-                    $("#timer").text('');
-                    window.location.href = "index2s.html";
-                } else {
-                    showError(response);
-                    $("#otp").val('');
-                }
-            },
-            error: function() {
-                showError("Error: OTP verification failed.");
-            }
-        });
-    });
+                  if (seconds < 10) {
+                      seconds = "0" + seconds;
+                  }
+
+                  timerElement.text("Time left: " + minutes + ":" + seconds);
+
+                  if (timeLeft <= 0) {
+                      clearInterval(timerInterval);
+                      timerElement.text("Time's up!");
+
+                      // Enable the "Send OTP" button
+                      $("#submit-btn").prop("disabled", false);
+                  }
+              }, 1000);
+
+              $("#verify-btn").click(function(e) {
+                  e.preventDefault();
+                  $("#success-message").text('').hide()
+                  $("#error-message").text('').hide()
+              
+                  if ($("#otp").val()) {
+                      $.ajax({
+                          url: "resources/php/login.php", // replace with the URL of your verification script
+                          type: "POST",
+                          data: { otp: $("#otp").val() },
+                          success: function(response) {
+                              if (response === "OTP is valid.") {
+                                  $("#success-message").text(response).show();
+                                  $(".contact-form")[0].reset();
+                                  window.location.href = "index2s.html"
+                              } else {
+                                  $("#error-message").text(response).show();
+                                  $("#otp").val('');
+                              }
+                          }
+                      });
+                  } else {
+                      $("#error-message").text("Error: Please enter the OTP.").show();
+                  }
+              });
+          } else {
+              $("#error-message").text(response).show();
+              $("#error1-message").text('').hide();
+              $(".contact-form")[0].reset();
+          }
+      }
+  });
   }else {
-      showError("Error: All fields are required.");
+      $("#error-message").text("Error: All fields are required.").show();
       $(this).prop('disabled', false);
   }
 });
