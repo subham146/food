@@ -1,4 +1,4 @@
-// Handler for first input field
+﻿// Handler for first input field
 $('#icon1').click(function() {
     var password = $('#pwd1');
     password.attr('type', password.attr('type') === 'password' ? 'text' : 'password');
@@ -66,7 +66,7 @@ $(document).ready(function() {
 
     if ($("#pwd2").val() && $("#pwd3").val()) {
         $.ajax({
-            url: "resources/php/change.php",
+            url: "resources/php/change.py",
             type: "POST",
             data: $(".contact-form").serialize(),
             success: function(response) {

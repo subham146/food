@@ -1,9 +1,9 @@
-$("#otp").on("input", function() {
+﻿$("#otp").on("input", function() {
     $("#error-message").text('').hide();
 });
 
 $(document).ready(function () {
-    $.getJSON('resources/php/index3.php')
+    $.getJSON('resources/php/index3.py')
         .done(function (data) {
             if (!data || data.error) {
                 return;
@@ -25,7 +25,8 @@ $('.free-button').click(function(e) {
     e.preventDefault();
 
     // Disable the button
-    $(this).prop('disabled', true);
+    var $subscribeBtn = $(this);
+    $subscribeBtn.prop('disabled', true);
 
     var paymentOption;
     var paymentData;
@@ -44,6 +45,7 @@ $('.free-button').click(function(e) {
 
     if (!paymentOption) {
         alert("Please select a payment option.");
+        $subscribeBtn.prop('disabled', false);
         return;
     }
 
@@ -52,7 +54,7 @@ $('.free-button').click(function(e) {
             paymentData = $("#upi").val();
             if (!paymentData) {
                 alert("Please enter your UPI ID.");
-                $(this).prop('disabled', false);
+                $subscribeBtn.prop('disabled', false);
                 return;
             }
             break;
@@ -62,7 +64,7 @@ $('.free-button').click(function(e) {
             pd2 = $("#ccn2").val();
             if (!paymentData || !pd1 || !pd2) {
                 alert("Please fill card details.");
-                $(this).prop('disabled', false);
+                $subscribeBtn.prop('disabled', false);
                 return;
             }
             break;
@@ -70,13 +72,13 @@ $('.free-button').click(function(e) {
             paymentData = $("#paypal").val();
             if (!paymentData) {
                 alert("Please enter your paypal ID.");
-                $(this).prop('disabled', false);
+                $subscribeBtn.prop('disabled', false);
                 return;
             }
             break;
         default:
             alert("Invalid payment option.");
-            $(this).prop('disabled', false);
+            $subscribeBtn.prop('disabled', false);
             return;
     }
 
@@ -91,12 +93,12 @@ $('.free-button').click(function(e) {
 
     if (!fullName || !phoneNumber || !streetAddress || !city || !state || !pinCode) {
         alert("Please fill in all fields.");
-        $(this).prop('disabled', false);
+        $subscribeBtn.prop('disabled', false);
         return;
     }
 
     $.ajax({
-        url: 'resources/php/billing.php',
+        url: 'resources/php/billing.py',
         type: 'post',
         data: { 
             paymentData: paymentData, 
@@ -152,7 +154,7 @@ $('.free-button').click(function(e) {
                     // Call your server-side script to verify the OTP
                     if ($("#otp").val()){
                         $.ajax({
-                            url: "resources/php/billing.php",
+                            url: "resources/php/billing.py",
                             type: "post",
                             data: { otp: otp },
                             success: function(response) {
@@ -174,10 +176,15 @@ $('.free-button').click(function(e) {
 
             } else {
                 $("#error-message").text(response).show();
-                $(this).prop('disabled', false);
+                $subscribeBtn.prop('disabled', false);
                 $(".contact-form")[0].reset();
             }
+        },
+        error: function() {
+            $("#error-message").text("Error: Payment request failed.").show();
+            $subscribeBtn.prop('disabled', false);
         }
     });
 });
+
 

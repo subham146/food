@@ -1,9 +1,9 @@
-$("#goal, #gender, #days, #meal, #diet, #sty").on('change', function() {
+﻿$("#goal, #gender, #days, #meal, #diet, #sty").on('change', function() {
     $("#error-message").text('').hide();
 });
 
 $(document).ready(function () {
-    $.getJSON('resources/php/acc.php')
+    $.getJSON('resources/php/acc.py')
         .done(function (data) {
             var username = (data && data.username) ? data.username : 'Guest';
             $('#profileImage').attr('title', username);
@@ -103,19 +103,8 @@ $(document).ready(function() {
 
         if (goal && gender && days && meal && diet && sty) {
             var price = calculatePrice(goal, gender, days, meal, diet, sty);
-            $("#price").text('₹ ' + price).show();
-
-            $.ajax({
-                url: 'resources/php/index2.php', // Replace this with the path to your PHP script
-                type: 'POST',
-                data: { price: price },
-                success: function(data) {
-                    console.log('Server response:', data);
-                },
-                error: function(error) {
-                    console.log('Error:', error);
-                }
-            });
+            $("#price").text('\u20B9 ' + price).show();
+            $("#price-value").val(price);
         } else {
             $("#error-message").text("Error: All fields are required.").show();
         }
@@ -154,18 +143,15 @@ $(document).ready(function() {
         e.preventDefault();
         $("#success-message").text('').hide()
         $("#error-message").text('').hide()
-    
-        var allFieldsFilled = true;
-        $(".contact-form input").each(function() {
-            if (!$(this).val()) {
-                allFieldsFilled = false;
-                return false; // Break out of the each loop
-            }
-        });
-      
-        if (allFieldsFilled){
+
+        var requiredSelectsFilled = $("#goal").val() && $("#gender").val() && $("#days").val() && $("#meal").val() && $("#diet").val() && $("#sty").val();
+        var selectedMeals = $('.choose input[type=checkbox]:checked').length;
+        var isFourMeals = $('#meal').find('option:selected').text() === '4 meals';
+        var hasMealSelection = isFourMeals || selectedMeals > 0;
+
+        if (requiredSelectsFilled && hasMealSelection){
           $.ajax({
-            url: "resources/php/index2.php",
+            url: "resources/php/index2.py",
             type: "POST",
             data: $(".contact-form").serialize(),
             success: function(response) {
@@ -178,12 +164,16 @@ $(document).ready(function() {
                     $('.choose input[type=checkbox]').prop('checked', false); // Uncheck all checkboxes
                     $('.choose').show(); // Show the checkboxes
                     var price1 = calculatePrice();
-                    $("#price").text('₹ ' + price1); // Set the price back to its default value
+                    $("#price").text('\u20B9 ' + price1); // Set the price back to its default value
                 }
             }
           });
         }else {
-            $("#error-message").text("Error: All fields are required.").show();
+            if (!hasMealSelection) {
+                $("#error-message").text("Error: Please choose at least one meal.").show();
+            } else {
+                $("#error-message").text("Error: All fields are required.").show();
+            }
         }
     });
 });

@@ -1,4 +1,4 @@
-const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
+﻿const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
 
 allSideMenu.forEach(item=> {
 	const li = item.parentElement;
@@ -85,7 +85,7 @@ function escapeHtml(value) {
 }
 
 $(document).ready(function () {
-	$.getJSON('resources/php/admin4.php')
+	$.getJSON('resources/php/admin4.py')
 		.done(function (data) {
 			if (data && typeof data.currentUser === 'string') {
 				$('#profileImage').attr('title', data.currentUser);

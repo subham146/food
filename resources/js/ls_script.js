@@ -1,4 +1,4 @@
-$(document).on('click', 'ion-icon.small', function () {
+﻿$(document).on('click', 'ion-icon.small', function () {
     var $icon = $(this);
     var $input = $icon.siblings('input').first();
 
@@ -99,7 +99,7 @@ $("#name").on("input",function() {
     if((is_alphabetic || is_alphanumeric) && !is_numeric){
 
         $.ajax({
-            url: "resources/php/signup.php", // replace with the URL of your script that checks if a username is available
+            url: "resources/php/signup.py", // replace with the URL of your script that checks if a username is available
             type: "POST",
             data: { name: username },
             success: function(response) {
@@ -242,7 +242,7 @@ $(document).ready(function() {
             // Final step: create account
             $("#submit-btn").prop('disabled', true);
             $.ajax({
-                url: "resources/php/signup.php",
+                url: "resources/php/signup.py",
                 type: "POST",
                 data: { create_account: 1 },
                 beforeSend: function() {
@@ -273,7 +273,7 @@ $(document).ready(function() {
         // First step: send OTP (collect stage only)
         if (stage === 'collect' && $("#name").val() && $("#email").val() && $("#pwd1").val() && $("#pwd2").val() && ($("#agree").is(":checked"))) {
             $.ajax({
-                url: "resources/php/signup.php",
+                url: "resources/php/signup.py",
                 type: "POST",
                 data: $(".contact-form").serialize(),
                 beforeSend: function() {
@@ -313,7 +313,7 @@ $(document).ready(function() {
                                 $("#submit-btn").data('stage', 'otp_sent');
 
                                 $.ajax({
-                                    url: "resources/php/signup.php",
+                                    url: "resources/php/signup.py",
                                     type: "POST",
                                     data: { resend_signup_otp: 1 },
                                     beforeSend: function() {
@@ -344,7 +344,7 @@ $(document).ready(function() {
                         
                             if ($("#otp").val()) {
                                 $.ajax({
-                                    url: "resources/php/signup.php", // replace with the URL of your verification script
+                                    url: "resources/php/signup.py", // replace with the URL of your verification script
                                     type: "POST",
                                     data: { otp: $("#otp").val()},
                                     success: function(response) {
@@ -407,4 +407,5 @@ window.onpageshow = function(event) {
         $(".contact-form")[0].reset();
     }
 };
+
 

@@ -1,4 +1,4 @@
-function escapeHtml(value) {
+﻿function escapeHtml(value) {
     return String(value ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -8,7 +8,7 @@ function escapeHtml(value) {
 }
 
 $(document).ready(function () {
-    $.getJSON('resources/php/plan.php')
+    $.getJSON('resources/php/plan.py')
         .done(function (data) {
             if (data && typeof data.currentUser === 'string') {
                 $('#profileImage').attr('title', data.currentUser);
@@ -28,7 +28,7 @@ $(document).ready(function () {
                 var date = escapeHtml(row.date);
                 var name = escapeHtml(row.name);
                 var amount = Number(row.amount ?? 0);
-                var amountText = isNaN(amount) ? '₹0.00' : ('₹' + amount.toFixed(2));
+                var amountText = isNaN(amount) ? '\u20B90.00' : ('\u20B9' + amount.toFixed(2));
                 var status = escapeHtml(row.status ?? 'Success');
 
                 $tbody.append(
@@ -48,3 +48,4 @@ $(document).ready(function () {
             $tbody.append('<tr><td colspan="5">No records found</td></tr>');
         });
 });
+

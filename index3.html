@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -32,7 +32,7 @@
                                         <button class="btn btn-light btn-block text-left collapsed p-3 rounded-0 border-bottom-custom" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" data-payment="paypal">
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <span>Paypal</span>
-                                                <img src="https://i.imgur.com/7kQEsHU.png" width="30">
+                                                <i class="fa fa-paypal" style="font-size:22px;" aria-hidden="true"></i>
                                             </div>
                                         </button>
                                     </h2>
@@ -50,10 +50,10 @@
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <span>Credit card</span>
                                                 <div class="icons">
-                                                    <img src="https://i.imgur.com/2ISgYja.png" width="30">
-                                                    <img src="https://i.imgur.com/W1vtnOV.png" width="30">
-                                                    <img src="https://i.imgur.com/35tC99g.png" width="30">
-                                                    <img src="https://i.imgur.com/2ISgYja.png" width="30">
+                                                    <i class="fa fa-cc-visa" style="font-size:22px; margin-right:8px;" aria-hidden="true"></i>
+                                                    <i class="fa fa-cc-mastercard" style="font-size:22px; margin-right:8px;" aria-hidden="true"></i>
+                                                    <i class="fa fa-cc-amex" style="font-size:22px; margin-right:8px;" aria-hidden="true"></i>
+                                                    <i class="fa fa-cc-discover" style="font-size:22px;" aria-hidden="true"></i>
                                                 </div>
                                             </div>
                                         </button>
@@ -92,7 +92,7 @@
                                         <button class="btn btn-light btn-block text-left collapsed p-3 rounded-0 border-bottom-custom" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" data-payment="upi">
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <span>UPI</span>
-                                                <img src="https://www.vectorlogo.zone/logos/upi/upi-ar21.svg" width="30">
+                                                <span style="font-weight:700; font-size:14px; letter-spacing:0.5px;">UPI</span>
                                             </div>
                                         </button>
                                     </h2>
@@ -139,7 +139,7 @@
                                 <span>Customised Diet + Food Delivery Subscription</span>
                             </div>
                             <div class="mt-1">
-                                <sup class="super-price"> ₹<span id="summary-price">0</span></sup>
+                                <sup class="super-price">&#8377;<span id="summary-price">0</span></sup>
                                 <span class="super-month">/ <span id="summary-days">-</span></span>
                             </div>
                         </div>
@@ -147,15 +147,15 @@
                         <div class="p-3">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>SGST</span>
-                                <span>₹<span id="summary-sgst">0</span></span>
+                                <span>&#8377;<span id="summary-sgst">0</span></span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>CGST</span>
-                                <span>₹<span id="summary-cgst">0</span></span>
+                                <span>&#8377;<span id="summary-cgst">0</span></span>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span>Discount</span>
-                                <span>-₹<span id="summary-discount">0</span></span>
+                                <span>-&#8377;<span id="summary-discount">0</span></span>
                             </div>
                         </div>
                         <hr class="mt-0 line">
@@ -163,7 +163,7 @@
                             <div class="d-flex flex-column">
                                 <span>Total Payable Amount</span>
                             </div>
-                            <span>₹<span id="summary-total">0</span></span>
+                            <span>&#8377;<span id="summary-total">0</span></span>
                         </div>
                         <div class="p-3">
                             <button class="btn btn-primary btn-block free-button" id='okay'>Subscribe</button> 
@@ -178,7 +178,7 @@
 
                     <div id="otp-card" class="card mt-3">
                         <div class="card-body">
-                            <form action="resources/php/billing.php" method="post">
+                            <form action="resources/php/billing.py" method="post">
                                 <div class="form-group mb-3">
                                     <input type="text" class="form-control" id="otp" name="otp" placeholder="Enter OTP">
                                 </div>
@@ -207,3 +207,4 @@
 
 
 </html>
+

@@ -1,4 +1,4 @@
-const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
+﻿const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
 
 allSideMenu.forEach(item=> {
 	const li = item.parentElement;
@@ -136,6 +136,8 @@ function escapeHtml(text) {
 		.replace(/'/g, '&#039;');
 }
 
+const RUPEE_SYMBOL = '\u20B9';
+
 function renderSubscriptions(subscriptions) {
 	const tbody = document.getElementById('subscriptions-body');
 	if (!tbody) return;
@@ -149,7 +151,7 @@ function renderSubscriptions(subscriptions) {
 	$('#no-records-found').hide();
 
 	const rowsHtml = subscriptions.map(function (s) {
-		const amountValue = s.amount === undefined || s.amount === null || s.amount === '' ? '' : ('₹' + s.amount);
+		const amountValue = s.amount === undefined || s.amount === null || s.amount === '' ? '' : (RUPEE_SYMBOL + s.amount);
 		return (
 			'<tr>' +
 				'<td><p>' + escapeHtml(s.userid) + '</p></td>' +
@@ -171,7 +173,7 @@ function renderSubscriptions(subscriptions) {
 }
 
 $(document).ready(function () {
-	$.getJSON('resources/php/admin3.php')
+	$.getJSON('resources/php/admin3.py')
 		.done(function (data) {
 			if (data && data.currentUser !== undefined) {
 				$('#profileImage').attr('title', data.currentUser);

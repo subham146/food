@@ -1,4 +1,4 @@
-$("#email, #otp").on("input", function() {
+﻿$("#email, #otp").on("input", function() {
     $("#error-message").text('').hide();
 });
 
@@ -34,7 +34,7 @@ $("#submit-btn").click(function(e) {
 
     if ($("#email").val()) {
         $.ajax({
-            url: "resources/php/forgot.php",
+            url: "resources/php/forgot.py",
             type: "POST",
             data: $(".contact-form").serialize(),
             success: function(response) {
@@ -74,16 +74,18 @@ $("#submit-btn").click(function(e) {
                         }
                     }, 1000);
 
-                    $("#verify-btn").click(function(e) {
+                    $("#verify-btn").off("click").on("click", function(e) {
                         e.preventDefault();
                         $("#success-message").text('').hide()
                         $("#error-message").text('').hide()
-                    
-                        if ($("#otp").val()) {
+
+                        var enteredOtp = ($("#otp").val() || "").trim();
+                        if (enteredOtp) {
+                            $("#verify-btn").prop("disabled", true);
                             $.ajax({
-                                url: "resources/php/forgot.php", // replace with the URL of your verification script
+                                url: "resources/php/forgot.py", // replace with the URL of your verification script
                                 type: "POST",
-                                data: { otp: $("#otp").val() },
+                                data: { otp: enteredOtp },
                                 success: function(response) {
                                     if (response === "OTP is valid.") {
                                         $("#success-message").text(response).show();
@@ -92,7 +94,12 @@ $("#submit-btn").click(function(e) {
                                     } else {
                                         $("#error-message").text(response).show();
                                         $("#otp").val('');
+                                        $("#verify-btn").prop("disabled", false);
                                     }
+                                },
+                                error: function() {
+                                    $("#error-message").text("Error while verifying OTP. Please try again.").show();
+                                    $("#verify-btn").prop("disabled", false);
                                 }
                             });
                         } else {

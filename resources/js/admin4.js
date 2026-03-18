@@ -1,4 +1,4 @@
-const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
+﻿const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
 
 allSideMenu.forEach(item=> {
 	const li = item.parentElement;
@@ -84,8 +84,10 @@ function escapeHtml(value) {
 		.replace(/'/g, '&#39;');
 }
 
+const RUPEE_SYMBOL = '\u20B9';
+
 $(document).ready(function () {
-	$.getJSON('resources/php/admin.php')
+	$.getJSON('resources/php/admin.py')
 		.done(function (data) {
 			if (data && typeof data.currentUser === 'string') {
 				$('#profileImage').attr('title', data.currentUser);
@@ -94,7 +96,7 @@ $(document).ready(function () {
 			if (data && data.metrics) {
 				$('#metric-neworders').text(data.metrics.newOrders ?? 0);
 				$('#metric-users').text(data.metrics.users ?? 0);
-				$('#metric-totalsales').text('₹ ' + (data.metrics.totalSales ?? 0));
+				$('#metric-totalsales').text(RUPEE_SYMBOL + ' ' + (data.metrics.totalSales ?? 0));
 			}
 
 			var orders = (data && Array.isArray(data.recentOrders)) ? data.recentOrders : [];
@@ -116,7 +118,7 @@ $(document).ready(function () {
 						'</td>' +
 						'<td>' + subscriptionid + '</td>' +
 						'<td>' + transactionid + '</td>' +
-						'<td>₹' + amount + '</td>' +
+						'<td>' + RUPEE_SYMBOL + amount + '</td>' +
 						'<td>' + datein + '</td>' +
 						'<td><span class="status completed">Completed</span></td>' +
 					'</tr>'

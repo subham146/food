@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -12,7 +12,7 @@
                 window.location.href = url;
             }
 
-            fetch('resources/php/logout.php', { method: 'POST' })
+            fetch('resources/php/logout.py', { method: 'POST' })
                 .then(function (res) { return res.json(); })
                 .then(function (data) {
                     if (data && data.redirect) {
@@ -28,3 +28,4 @@
     </script>
 </body>
 </html>
+

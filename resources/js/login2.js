@@ -1,4 +1,4 @@
-
+﻿
   $('.small').click(function() {
     var icon = $(this);
     var password = $('#pwd');
@@ -53,7 +53,7 @@
   
     if ($("#username").val() && $("#pwd").val()){
       $.ajax({
-        url: "resources/php/login2.php",
+        url: "resources/php/login2.py",
         type: "POST",
         data: $(".contact-form").serialize(),
         success: function(response) {
@@ -93,16 +93,18 @@
                     }
                 }, 1000);
   
-                $("#verify-btn").click(function(e) {
+                $("#verify-btn").off("click").on("click", function(e) {
                     e.preventDefault();
                     $("#success-message").text('').hide()
                     $("#error-message").text('').hide()
-                
-                    if ($("#otp").val()) {
+
+                    var enteredOtp = ($("#otp").val() || "").trim();
+                    if (enteredOtp) {
+                        $("#verify-btn").prop("disabled", true);
                         $.ajax({
-                            url: "resources/php/login2.php", // replace with the URL of your verification script
+                            url: "resources/php/login2.py", // replace with the URL of your verification script
                             type: "POST",
-                            data: { otp: $("#otp").val() },
+                            data: { otp: enteredOtp },
                             success: function(response) {
                                 if (response === "Admin Login Success") {
                                     $("#success-message").text(response).show();
@@ -111,7 +113,12 @@
                                 } else {
                                     $("#error-message").text(response).show();
                                     $("#otp").val('');
+                                    $("#verify-btn").prop("disabled", false);
                                 }
+                            },
+                            error: function() {
+                                $("#error-message").text("Error while verifying OTP. Please try again.").show();
+                                $("#verify-btn").prop("disabled", false);
                             }
                         });
                     } else {

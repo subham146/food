@@ -1,4 +1,4 @@
-const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
+﻿const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
 
 allSideMenu.forEach(item=> {
 	const li = item.parentElement;
@@ -85,7 +85,7 @@ function escapeHtml(value) {
 }
 
 $(document).ready(function () {
-    $.getJSON('resources/php/admin2.php')
+    $.getJSON('resources/php/admin2.py')
         .done(function (data) {
             if (data && typeof data.currentUser === 'string') {
                 $('#profileImage').attr('title', data.currentUser);
@@ -166,7 +166,7 @@ $(document).ready(function() {
         var id = $(this).data("id");
 		var email = $(this).data("email");
         $.ajax({
-            url: "resources/php/delete.php",
+            url: "resources/php/delete.py",
             type: "POST",
             data: { id: id, email: email },
             success: function(response) {
