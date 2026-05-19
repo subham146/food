@@ -4,6 +4,8 @@
 
 <br/>
 
+<br/>
+
 [![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&size=20&pause=1000&color=e67e22&center=true&vCenter=true&width=640&lines=Full-Stack+Food+Delivery+Platform+🍕;Flask+%2B+Vercel+Serverless+%E2%9A%A1;Email+OTP+Auth+%2B+Supabase+DB+🔐;Admin+Panel+%2B+Multi-Page+Frontend+🖥️;Open+Source+%26+Deploy-Ready+🚀)](https://git.io/typing-svg)
 
 <br/>
@@ -12,9 +14,9 @@
   <img src="https://img.shields.io/badge/🌐_Live_Demo-Visit_Now-e67e22?style=for-the-badge&labelColor=1a1a1a" />
 </a>
 &nbsp;
-<img src="https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white&labelColor=1a1a1a" />
+<img src="https://img.shields.io/badge/Python-3.14.4-3776AB?style=for-the-badge&logo=python&logoColor=white&labelColor=1a1a1a" />
 &nbsp;
-<img src="https://img.shields.io/badge/Flask-4.0-e67e22?style=for-the-badge&logo=flask&logoColor=white&labelColor=1a1a1a" />
+<img src="https://img.shields.io/badge/Flask-3.1.3-e67e22?style=for-the-badge&logo=flask&logoColor=white&labelColor=1a1a1a" />
 &nbsp;
 <img src="https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white&labelColor=1a1a1a" />
 &nbsp;
