@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:e67e22,100:f39c12&height=220&section=header&text=🍽️%20Foodelight&fontSize=78&fontColor=ffffff&fontAlignY=38&desc=Goodbye%20junk%20food.%0AHello%20super%20healthy%20meals.&descAlignY=58&descSize=22&animation=fadeIn" width="100%"/>
-
-<br/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:e67e22,100:f39c12&height=220&section=header&text=🍽️%20Foodelight&fontSize=78&fontColor=ffffff&fontAlignY=38&desc=Goodbye%20junk%20food.%0AHello%20super%20healthy%20meals.&descAlignY=64&descSize=22&animation=fadeIn" width="100%"/>
 
 <br/>
 
