@@ -1,0 +1,214 @@
+body {
+    margin: 20px;
+    background: #FFF5EE;
+}
+
+.card {
+    box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+}
+
+.avatar.sm {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: .818125rem;
+}
+
+.table-nowrap .table td,
+.table-nowrap .table th {
+    white-space: nowrap;
+}
+
+.table>:not(caption)>*>* {
+    padding: 0.75rem 1.25rem;
+    border-bottom-width: 1px;
+}
+
+table th {
+    font-weight: 600;
+    background-color: #eeecfd !important;
+}
+
+.fa-arrow-up {
+    color: #00CED1;
+}
+
+.fa-arrow-down {
+    color: #FF00FF;
+}
+
+header {
+    position: relative;
+    background-image: linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url(img/-saveurs-secretes-5560763.jpg);
+    height: 30vh;
+}
+
+header::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100px; /* Adjust this value */
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'><path d='M0 0 Q 5 10, 10 0 L10 10 L0 10' fill='white'/></svg>");
+    background-repeat: repeat-x;
+    background-size: 100% 100px; /* Adjust this value */
+}
+
+.logo {
+    height: 100px;
+    width: auto;
+    float: left;
+    margin-top: 20px;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    float: right;
+    list-style: none;
+    margin-top: 30px;
+}
+
+.main-nav li {
+    display: inline-block;
+    margin: 20px;
+    border-bottom: 2px solid transparent;
+}
+
+.main-nav li a:link,
+.main-nav li a:visited{
+    padding: 8px 0;
+    color: #fff;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 90%;
+}
+
+.main-nav li:hover, 
+.main-nav li:active{
+    border-bottom: 2px solid #e67e22;
+}
+
+footer {
+    background-color: #555;
+    padding: 50px;
+    font-size: 80%;
+    height: 190px;
+}
+
+.footer-nav {
+    list-style: none;
+    float: left;
+}
+
+.social-links {
+    list-style: none;
+    float: right;
+}
+
+.footer-nav li,
+.social-links li {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.footer-nav li:last-child,
+.social-links li:last-child {
+    margin-right: 0;
+}
+
+.footer-nav li a:link,
+.footer-nav li a:visited,
+.social-links li a:link,
+.social-links li a:visited {
+    text-decoration: none;
+    border: 0;
+    color: #888;
+    transition: color 0.2s;
+}
+
+.footer-nav li a:hover,
+.footer-nav li a:active {
+    color: #ddd;
+}
+
+.social-links li a:link,
+.social-links li a:visited {
+    font-size: 160%;
+}
+
+.facebook:hover,
+.twitter:hover,
+.linkedin:hover,
+.instagram:hover {
+    transition: color 0.2s;
+}
+
+.facebook:hover {
+    color: #3b5998;
+}
+
+.twitter:hover {
+    color: #55acee;
+}
+
+.linkedin:hover {
+    color: #007bb5;
+}
+
+.instagram:hover {
+    color: #e95950;
+}
+
+footer p {
+    color: #888;
+    text-align: center;
+    font-size: 90%;
+    margin-top: 30px;
+}
+
+h2 {
+    font-size: 180%;
+    word-spacing: 2px;
+    text-align: center;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+    font-weight: 300;
+    text-transform: uppercase;
+}
+
+h2:after {
+    display: block;
+    height: 2px;
+    background-color: #e67e22;
+    content: " ";
+    width: 100px;
+    margin: 0 auto;
+    margin-top: 30px;
+}
+
+
+/*Small tablets to big tablets: from 768 to 1023px */
+@media only screen and (max-width: 1023px) {
+    footer {
+        height: 220px;
+    }
+}
+
+
+
+/*Small phones to small tablets: from 481 to 767px */
+@media only screen and (max-width: 767px) {
+    footer {
+        height: 225px;
+    }
+}
+
+
+/* Small phones: from 0 to 480px */
+@media only screen and (max-width: 480px) {
+    footer {
+        height: 270px;
+    }
+
+}
+

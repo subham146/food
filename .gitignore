@@ -1,8 +1,28 @@
 
-resources/php/mail/Exception.php
-resources/php/mail/PHPMailer.php
-resources/php/mail/SMTP.php
+python/config.py
+python/smtp.py
+python/.env
 
+# Python
+__pycache__/
+python/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
 
-resources/php/config.php
-resources/php/smtp.php
+# Vercel
+.vercel/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.vercel
+
+# Local debug artifacts
+vercel_logs.txt
+vercel_prod_logs.json
