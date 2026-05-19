@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:e67e22,100:f39c12&height=220&section=header&text=🍽️%20Foodelight&fontSize=78&fontColor=ffffff&fontAlignY=38&desc=Get%20Food%20Fast%20—%20Not%20Fast%20Food&descAlignY=58&descSize=22&animation=fadeIn" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:e67e22,100:f39c12&height=220&section=header&text=🍽️%20Foodelight&fontSize=78&fontColor=ffffff&fontAlignY=38&desc=Goodbye%20junk%20food.%0AHello%20super%20healthy%20meals.&descAlignY=58&descSize=22&animation=fadeIn" width="100%"/>
 
 <br/>
 
@@ -64,10 +64,12 @@ foodelight/
 │   └── index.py               → Vercel serverless entry point
 │
 ├── 📁 python/
-│   ├── index.py               → Main Flask application
+│   ├── app.py                 → Flask application entry point
+│   ├── config.py              → Environment and config loading
+│   ├── common.py              → Shared helpers and utilities
 │   ├── db.py                  → All DB connections (single source of truth)
-│   ├── db_init.py             → Schema initialization (auto-runs on first route)
-│   └── .env                   → Local secrets (never committed)
+│   ├── db_init.py             → Schema initialization
+│   └── signup.py / login.py / forgot.py / ... → Route handlers
 │
 ├── 📁 public/
 │   ├── index.html             → Landing page
